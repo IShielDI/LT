@@ -1,0 +1,44 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Dockerfile"
+
+[deploy]
+numReplicas = 1
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[[deploy.services]]
+name = "web"
+source = "Dockerfile"
+servicePort = 8000
+healthcheckPath = "/api/health/"
+healthcheckTimeout = 100
+
+[deploy.services.env]
+DJANGO_SECRET_KEY = "${{DJANGO_SECRET_KEY}}"
+DJANGO_DEBUG = "False"
+DATABASE_URL = "${{DATABASE_URL}}"
+REDIS_URL = "${{REDIS_URL}}"
+DJANGO_ALLOWED_HOSTS = "${{DJANGO_ALLOWED_HOSTS}}"
+
+[[deploy.services]]
+name = "celery-worker"
+source = "Dockerfile"
+command = "celery -A delivery_hub.settings.celery worker --loglevel=info"
+
+[deploy.services.env]
+DJANGO_SECRET_KEY = "${{DJANGO_SECRET_KEY}}"
+DJANGO_DEBUG = "False"
+DATABASE_URL = "${{DATABASE_URL}}"
+REDIS_URL = "${{REDIS_URL}}"
+
+[[deploy.services]]
+name = "celery-beat"
+source = "Dockerfile"
+command = "celery -A delivery_hub.settings.celery beat --loglevel=info"
+
+[deploy.services.env]
+DJANGO_SECRET_KEY = "${{DJANGO_SECRET_KEY}}"
+DJANGO_DEBUG = "False"
+DATABASE_URL = "${{DATABASE_URL}}"
+REDIS_URL = "${{REDIS_URL}}"
