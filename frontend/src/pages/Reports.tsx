@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../lib/api'
-import { FileText, Download, Calendar } from 'lucide-react'
+import { FileText, Download, Calendar, Loader2 } from 'lucide-react'
+import { PageHeader, buttonSecondary, cardClass, inputClass } from '../components/ui'
 
 export default function Reports() {
   const [startDate, setStartDate] = useState('')
@@ -36,57 +37,60 @@ export default function Reports() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Reports</h1>
+      <PageHeader
+        title="Reports"
+        description="Export dispatch, rider performance, parcel and delivery reports for operational reviews."
+      />
 
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-primary-600" />
+      <div className={`${cardClass} p-6`}>
+        <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-950">
+          <Calendar className="w-5 h-5 text-primary-700" />
           Date Range Filter
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Start Date</label>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">Start Date</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">End Date</label>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">End Date</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
+              className={inputClass}
             />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {reports.map((report) => (
-          <div key={report.id} className="bg-white rounded-xl p-6 border border-gray-200">
+          <div key={report.id} className={`${cardClass} p-6 hover:-translate-y-1`}>
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-primary-600" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 ring-1 ring-primary-100">
+                  <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">{report.label}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{report.desc}</p>
-                  <span className="inline-block mt-2 px-2 py-1 text-xs bg-gray-100 rounded-full">
+                  <h3 className="font-semibold text-slate-950">{report.label}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{report.desc}</p>
+                  <span className="mt-3 inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                     {report.format}
                   </span>
                 </div>
               </div>
               <button
-                className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50"
+                className={`${buttonSecondary} disabled:opacity-50`}
                 onClick={() => handleExport(report.endpoint, `${report.id}.${report.format.toLowerCase()}`)}
                 disabled={loading}
               >
-                <Download className="w-4 h-4" />
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                 Export
               </button>
             </div>

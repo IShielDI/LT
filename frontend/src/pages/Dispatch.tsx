@@ -3,6 +3,7 @@ import api from '../lib/api'
 import type { Assignment, PaginatedResponse, AssignmentResult } from '../types'
 import { Send, AlertCircle, CheckCircle, Loader2, Wifi, WifiOff } from 'lucide-react'
 import { useWebSocket } from '../hooks/useWebSocket'
+import { EmptyState, PageHeader, TableSkeleton, buttonPrimary, cardClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 export default function Dispatch() {
   const [assignments, setAssignments] = useState<Assignment[]>([])
@@ -55,19 +56,17 @@ export default function Dispatch() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-      </div>
-    )
+    return <TableSkeleton columns={4} />
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">Dispatch Center</h1>
-          <div className="flex items-center gap-1 text-sm">
+      <PageHeader
+        title="Dispatch Center"
+        description="Run assignment planning and monitor rider-to-parcel allocation in real time."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
             {wsConnected ? (
               <>
                 <Wifi className="w-4 h-4 text-green-600" />
@@ -80,27 +79,28 @@ export default function Dispatch() {
               </>
             )}
           </div>
-        </div>
         <button
           onClick={runAssignment}
           disabled={running}
-          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50"
+          className={buttonPrimary}
         >
           {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {running ? 'Running...' : 'Run Assignment'}
         </button>
-      </div>
+          </div>
+        }
+      />
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-4 rounded-lg">
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
 
       {result && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-green-200 bg-green-50 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-green-800">Assigned ({result.assigned.length})</h3>
@@ -113,7 +113,7 @@ export default function Dispatch() {
               ))}
             </div>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-5 h-5 text-red-600" />
               <h3 className="font-semibold text-red-800">Unassigned ({result.unassigned.length})</h3>
@@ -129,32 +129,33 @@ export default function Dispatch() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="font-semibold">Current Assignments</h3>
+      <div className={`${cardClass} overflow-hidden`}>
+        <div className="border-b border-slate-200 p-6">
+          <h3 className="font-semibold text-slate-950">Current Assignments</h3>
+          <p className="mt-1 text-sm text-slate-500">Assigned parcels and their current delivery workflow state.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Parcel</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rider</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned At</th>
+                <th className="px-6 py-3">Parcel</th>
+                <th className="px-6 py-3">Rider</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Assigned At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-100">
               {assignments.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                    No assignments yet. Run the assignment engine to assign parcels to riders.
+                  <td colSpan={4}>
+                    <EmptyState icon={Send} title="No assignments yet" description="Run the assignment engine to match available riders with parcels by zone and capacity." action={<button onClick={runAssignment} disabled={running} className={buttonPrimary}>{running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Run assignment</button>} />
                   </td>
                 </tr>
               ) : (
                 assignments.map((a) => (
-                  <tr key={a.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-mono">{a.parcel_tracking_id.slice(0, 8)}...</td>
-                    <td className="px-6 py-4 text-sm">{a.rider_name}</td>
+                  <tr key={a.id} className={tableRowClass}>
+                    <td className="px-6 py-4 text-sm font-mono text-slate-600">{a.parcel_tracking_id.slice(0, 8)}...</td>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-800">{a.rider_name}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         a.status === 'delivered' ? 'bg-green-100 text-green-700' :
@@ -165,7 +166,7 @@ export default function Dispatch() {
                         {a.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-slate-500">
                       {new Date(a.assigned_at).toLocaleDateString()}
                     </td>
                   </tr>

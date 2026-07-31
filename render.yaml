@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: delivery-hub-backend
+    runtime: python
+    build:
+      buildCommand: bash build.sh
+      # Render auto-installs requirements.txt; build.sh also installs them.
+    startCommand: gunicorn delivery_hub.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: USE_CELERY
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        fromSecret: DJANGO_SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: delivery-hub-db
+          property: connectionString
+      - key: FRONTEND_URL
+        value: ""
+    healthCheckPath: /api/health/
+
+databases:
+  - name: delivery-hub-db
+    region: oregon
+    plan: free

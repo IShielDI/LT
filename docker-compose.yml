@@ -32,13 +32,10 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./media:/app/media
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgres://delivery_user:delivery_pass@db:5432/delivery_hub
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=False
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,backend
     depends_on:
       db:
         condition: service_healthy
@@ -49,6 +46,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 15s
 
   celery:
     build:
@@ -57,11 +55,9 @@ services:
     command: celery -A delivery_hub.settings.celery worker --loglevel=info
     volumes:
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgres://delivery_user:delivery_pass@db:5432/delivery_hub
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=False
     depends_on:
       - db
@@ -74,11 +70,9 @@ services:
     command: celery -A delivery_hub.settings.celery beat --loglevel=info
     volumes:
       - ./logs:/app/logs
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgres://delivery_user:delivery_pass@db:5432/delivery_hub
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=False
     depends_on:
       - db

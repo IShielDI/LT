@@ -14,6 +14,7 @@ env = environ.Env(
     DJANGO_ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
     DATABASE_URL=(str, f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
     REDIS_URL=(str, "redis://localhost:6379/1"),
+    USE_CELERY=(bool, True),
 )
 
 # Read .env file
@@ -28,6 +29,13 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-dev-key-change-in-produc
 DEBUG = env("DJANGO_DEBUG")
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS")
+# Allow Render's auto-assigned domain pattern in production.
+if not DEBUG:
+    ALLOWED_HOSTS = list(ALLOWED_HOSTS) + [".onrender.com"]
+
+# Whether to use Celery for background tasks. When False, task calls fall back
+# to synchronous execution so the app works without Redis/Celery running.
+USE_CELERY = env("USE_CELERY")
 
 # Application definition
 INSTALLED_APPS = [
@@ -56,6 +64,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -121,6 +130,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# Directory where the built frontend assets are copied during deployment.
+STATICFILES_DIRS = [BASE_DIR / "frontend" / "dist"]
+# Use Whitenoise's compressed storage for production static file serving.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files (QR codes, uploads)
 MEDIA_URL = "media/"

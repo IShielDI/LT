@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../lib/api'
 import type { DeliveryAttempt, PaginatedResponse } from '../types'
 import { Truck, AlertCircle } from 'lucide-react'
+import { EmptyState, PageHeader, TableSkeleton, buttonPrimary, cardClass, inputClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 export default function Delivery() {
   const [attempts, setAttempts] = useState<DeliveryAttempt[]>([])
@@ -46,55 +47,57 @@ export default function Delivery() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-      </div>
-    )
+    return <TableSkeleton columns={5} />
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Delivery Updates</h1>
+      <PageHeader
+        title="Delivery Updates"
+        description="Record delivery attempts, failures, reattempt schedules and successful handoffs."
+        actions={
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+          className={buttonPrimary}
         >
           <Truck className="w-4 h-4" />
           Record Attempt
         </button>
-      </div>
+        }
+      />
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-4 rounded-lg">
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
       {success && (
-        <div className="text-sm text-green-600 bg-green-50 p-4 rounded-lg">{success}</div>
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">{success}</div>
       )}
 
       {showForm && (
-        <form onSubmit={handleRecord} className="bg-white rounded-xl p-6 border border-gray-200 space-y-4">
-          <h3 className="font-semibold">Record Delivery Attempt</h3>
+        <form onSubmit={handleRecord} className={`${cardClass} space-y-5 p-6`}>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-950">Record Delivery Attempt</h3>
+            <p className="mt-1 text-sm text-slate-500">Update parcel delivery status and capture operational notes.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Parcel Tracking ID</label>
-              <input name="parcel" required className="w-full px-3 py-2 border rounded-lg" placeholder="UUID" />
+              <label className="mb-1 block text-sm font-semibold text-slate-700">Parcel Tracking ID</label>
+              <input name="parcel" required className={inputClass} placeholder="UUID" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select name="status" className="w-full px-3 py-2 border rounded-lg">
+              <label className="mb-1 block text-sm font-semibold text-slate-700">Status</label>
+              <select name="status" className={inputClass}>
                 <option value="success">Delivered Successfully</option>
                 <option value="failed">Failed</option>
                 <option value="reattempt_scheduled">Reattempt Scheduled</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Failure Reason</label>
-              <select name="failure_reason" className="w-full px-3 py-2 border rounded-lg">
+              <label className="mb-1 block text-sm font-semibold text-slate-700">Failure Reason</label>
+              <select name="failure_reason" className={inputClass}>
                 <option value="">—</option>
                 <option value="customer_unavailable">Customer Unavailable</option>
                 <option value="wrong_address">Wrong Address</option>
@@ -104,40 +107,40 @@ export default function Delivery() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Notes</label>
-              <input name="notes" className="w-full px-3 py-2 border rounded-lg" />
+              <label className="mb-1 block text-sm font-semibold text-slate-700">Notes</label>
+              <input name="notes" className={inputClass} />
             </div>
           </div>
-          <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700">
+          <button type="submit" className={buttonPrimary}>
             Submit
           </button>
         </form>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className={`${cardClass} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Parcel</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attempt #</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Failure Reason</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="px-6 py-3">Parcel</th>
+                <th className="px-6 py-3">Attempt #</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Failure Reason</th>
+                <th className="px-6 py-3">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-100">
               {attempts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                    No delivery attempts recorded yet.
+                  <td colSpan={5}>
+                    <EmptyState icon={Truck} title="No delivery attempts yet" description="Record the first delivery attempt once a rider reaches the customer location." action={<button onClick={() => setShowForm(true)} className={buttonPrimary}><Truck className="h-4 w-4" /> Record attempt</button>} />
                   </td>
                 </tr>
               ) : (
                 attempts.map((a) => (
-                  <tr key={a.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-mono">{a.parcel_tracking_id.slice(0, 8)}...</td>
-                    <td className="px-6 py-4 text-sm">{a.attempt_number}</td>
+                  <tr key={a.id} className={tableRowClass}>
+                    <td className="px-6 py-4 text-sm font-mono text-slate-600">{a.parcel_tracking_id.slice(0, 8)}...</td>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-800">{a.attempt_number}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         a.status === 'success' ? 'bg-green-100 text-green-700' :
@@ -147,8 +150,8 @@ export default function Delivery() {
                         {a.status_display}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">{a.failure_reason_display || '—'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-slate-700">{a.failure_reason_display || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500">
                       {new Date(a.attempted_at).toLocaleDateString()}
                     </td>
                   </tr>

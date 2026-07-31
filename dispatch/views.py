@@ -10,6 +10,7 @@ from parcels.models import ParcelStatus
 from .models import Assignment
 from .serializers import AssignmentRunSerializer, AssignmentSerializer
 from .services import RiderAssignmentEngine
+from .tasks import run_assignment_task
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
@@ -41,9 +42,11 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     def run_assignment(self, request):
         """
         Trigger the RiderAssignmentEngine and return results.
+
+        Honors the USE_CELERY setting: when Celery is enabled the assignment
+        runs as a background task; otherwise it runs synchronously.
         """
-        engine = RiderAssignmentEngine()
-        result = engine.run()
+        result = run_assignment_task()
 
         serializer = AssignmentRunSerializer(data=result)
         serializer.is_valid(raise_exception=True)
