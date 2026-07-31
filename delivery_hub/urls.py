@@ -2,10 +2,10 @@
 URL configuration for delivery_hub project.
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from core.views import health_check
+from core.views import health_check, spa_serve
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,4 +28,9 @@ urlpatterns = [
     path("api/dispatch/", include("dispatch.urls")),
     path("api/delivery/", include("delivery.urls")),
     path("api/reports/", include("reports.urls")),
+    # Catch-all for the React SPA — serve index.html for any non-API, non-admin
+    # route so React Router's client-side routing works for paths like
+    # /dashboard, /parcels, /riders, etc. This must be the LAST pattern so that
+    # /api/ and /admin/ routes take priority.
+    re_path(r"^(?!api/|admin/).*", spa_serve, name="spa_serve"),
 ]
