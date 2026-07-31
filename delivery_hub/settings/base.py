@@ -15,7 +15,6 @@ env = environ.Env(
     DATABASE_URL=(str, f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
     REDIS_URL=(str, "redis://localhost:6379/1"),
     USE_CELERY=(bool, True),
-    USE_FILE_LOGGING=(bool, False),
 )
 
 # Read .env file
@@ -144,15 +143,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Logging configuration
-# File logging is opt-in via USE_FILE_LOGGING (default False) so that production
-# deployments like Render — where the logs/ directory may not exist — rely on
-# console logging only, which Render captures automatically in its dashboard.
-USE_FILE_LOGGING = env("USE_FILE_LOGGING")
-
-LOGGING_HANDLERS = ["console"]
-if USE_FILE_LOGGING:
-    LOGGING_HANDLERS.append("file")
-
+# Console-only logging. Render captures stdout/stderr automatically in its
+# dashboard, so no file handler is needed (and the logs/ directory does not
+# exist on Render's ephemeral filesystem).
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -181,14 +174,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
-        "file": {
-            "level": "WARNING",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": BASE_DIR / "logs" / "delivery_hub.log",
-            "maxBytes": 10 * 1024 * 1024,  # 10 MB
-            "backupCount": 5,
-            "formatter": "verbose",
-        },
         "mail_admins": {
             "level": "ERROR",
             "filters": ["require_debug_false"],
@@ -197,16 +182,16 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": LOGGING_HANDLERS,
+            "handlers": ["console"],
             "level": "INFO",
         },
         "django.request": {
-            "handlers": ["mail_admins"] + LOGGING_HANDLERS,
+            "handlers": ["mail_admins", "console"],
             "level": "ERROR",
             "propagate": False,
         },
         "delivery_hub": {
-            "handlers": LOGGING_HANDLERS,
+            "handlers": ["console"],
             "level": "INFO",
         },
     },
