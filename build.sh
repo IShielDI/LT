@@ -26,6 +26,9 @@ cp -r frontend/dist/* staticfiles/
 echo "==> Collecting static files"
 python manage.py collectstatic --noinput
 
+echo "==> Ensuring logs directory exists (safety net for file logging)"
+mkdir -p logs
+
 echo "==> Running database migrations"
 python manage.py migrate
 

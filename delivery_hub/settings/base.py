@@ -15,6 +15,7 @@ env = environ.Env(
     DATABASE_URL=(str, f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
     REDIS_URL=(str, "redis://localhost:6379/1"),
     USE_CELERY=(bool, True),
+    USE_FILE_LOGGING=(bool, False),
 )
 
 # Read .env file
@@ -143,6 +144,15 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Logging configuration
+# File logging is opt-in via USE_FILE_LOGGING (default False) so that production
+# deployments like Render — where the logs/ directory may not exist — rely on
+# console logging only, which Render captures automatically in its dashboard.
+USE_FILE_LOGGING = env("USE_FILE_LOGGING")
+
+LOGGING_HANDLERS = ["console"]
+if USE_FILE_LOGGING:
+    LOGGING_HANDLERS.append("file")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -187,16 +197,16 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": LOGGING_HANDLERS,
             "level": "INFO",
         },
         "django.request": {
-            "handlers": ["mail_admins", "file"],
+            "handlers": ["mail_admins"] + LOGGING_HANDLERS,
             "level": "ERROR",
             "propagate": False,
         },
         "delivery_hub": {
-            "handlers": ["console", "file"],
+            "handlers": LOGGING_HANDLERS,
             "level": "INFO",
         },
     },
