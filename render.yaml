@@ -2,9 +2,7 @@ services:
   - type: web
     name: delivery-hub-backend
     runtime: python
-    build:
-      buildCommand: bash build.sh
-      # Render auto-installs requirements.txt; build.sh also installs them.
+    buildCommand: bash build.sh
     startCommand: gunicorn delivery_hub.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DJANGO_DEBUG
