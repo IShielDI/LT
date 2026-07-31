@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import {
-  LayoutDashboard, Package, Bike, Send, Truck, FileText,
+  LayoutDashboard, Package, Bike, Send, Scan, Truck, FileText,
   Search, LogOut, Menu, X, Bell, ChevronRight, Warehouse,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -11,6 +11,7 @@ const navItems = [
   { to: '/parcels', label: 'Parcels', icon: Package, roles: ['admin', 'hub_manager', 'rider'] },
   { to: '/riders', label: 'Riders', icon: Bike, roles: ['admin', 'hub_manager'] },
   { to: '/dispatch', label: 'Dispatch', icon: Send, roles: ['admin', 'hub_manager'] },
+  { to: '/scan', label: 'Scan Parcel', icon: Scan, roles: ['admin', 'hub_manager', 'rider'] },
   { to: '/delivery', label: 'Delivery Updates', icon: Truck, roles: ['admin', 'hub_manager', 'rider'] },
   { to: '/reports', label: 'Reports', icon: FileText, roles: ['admin', 'hub_manager'] },
   { to: '/track', label: 'Tracking', icon: Search, roles: ['admin', 'hub_manager', 'rider'] },
@@ -20,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -74,19 +76,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-white/10 p-4">
           <div className="mb-3 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
             <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-400 text-slate-950 ring-2 ring-white/10">
-              <span className="text-sm font-bold">
-                {user?.first_name?.[0] || user?.username?.[0] || 'U'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="truncate text-sm font-semibold text-white">
-                {user?.first_name} {user?.last_name}
-              </p>
-              <p className="text-xs capitalize text-slate-400">
-                {user?.role?.replace('_', ' ')}
-              </p>
-            </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-400 text-slate-950 ring-2 ring-white/10">
+                <span className="text-sm font-bold">
+                  {user?.first_name?.[0] || user?.username?.[0] || 'U'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-sm font-semibold text-white">
+                  {user?.first_name} {user?.last_name}
+                </p>
+                <p className="text-xs capitalize text-slate-400">
+                  {user?.role?.replace('_', ' ')}
+                </p>
+              </div>
             </div>
           </div>
           <button
@@ -121,10 +123,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <p className="text-xs text-slate-500">Monitor parcels, riders, dispatch and delivery operations.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent-500 ring-2 ring-white" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent-500 ring-2 ring-white" />
+              </button>
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg z-50">
+                  <div className="p-4 border-b border-slate-200">
+                    <h3 className="font-semibold text-slate-950">Notifications</h3>
+                  </div>
+                  <div className="p-4 text-sm text-slate-600">
+                    <p className="mb-2">• Parcel #PKG-1234 assigned to rider John</p>
+                    <p className="mb-2">• Delivery completed for PKG-1233</p>
+                    <p>• 3 parcels pending assignment</p>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm sm:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               <span className="text-xs font-semibold capitalize text-slate-600">{user?.role?.replace('_', ' ')}</span>

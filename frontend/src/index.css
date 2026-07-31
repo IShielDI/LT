@@ -51,8 +51,8 @@ body {
   @apply bg-slate-400;
 }
 
-/* Smooth transitions */
-* {
+/* Smooth transitions - only apply to interactive elements, not all elements */
+button, a, input, select, textarea, [role="button"] {
   @apply transition-colors duration-200;
 }
 

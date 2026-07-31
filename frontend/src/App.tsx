@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Parcels from './pages/Parcels'
 import Riders from './pages/Riders'
 import Dispatch from './pages/Dispatch'
+import ScanParcel from './pages/ScanParcel'
 import Delivery from './pages/Delivery'
 import Reports from './pages/Reports'
 import Tracking from './pages/Tracking'
@@ -58,6 +59,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={['admin', 'hub_manager']}>
               <Layout><Dispatch /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/scan"
+          element={
+            <ProtectedRoute roles={['admin', 'hub_manager', 'rider']}>
+              <Layout><ScanParcel /></Layout>
             </ProtectedRoute>
           }
         />
