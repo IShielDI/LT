@@ -99,6 +99,13 @@ export interface AssignmentResult {
   unassigned: Array<{ parcel_id: string; reason: string }>
 }
 
+export interface PresetLocation {
+  area_name: string
+  pincode: string
+  zone: number
+  zone_name: string
+}
+
 export interface PaginatedResponse<T> {
   count: number
   next: string | null

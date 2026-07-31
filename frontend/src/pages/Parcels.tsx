@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import api from '../lib/api'
-import type { ParcelList, PaginatedResponse } from '../types'
+import type { ParcelList, PaginatedResponse, PresetLocation } from '../types'
 import { useAuthStore } from '../store/auth'
-import { Plus, Search, Package } from 'lucide-react'
+import { Plus, Search, Package, MapPin, ChevronDown } from 'lucide-react'
 import { EmptyState, PageHeader, TableSkeleton, buttonPrimary, buttonSecondary, cardClass, inputClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -22,11 +22,16 @@ export default function Parcels() {
   const [showForm, setShowForm] = useState(false)
   const [search, setSearch] = useState('')
   const [error, setError] = useState('')
+  const [locations, setLocations] = useState<PresetLocation[]>([])
+  const [locationSearch, setLocationSearch] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState<PresetLocation | null>(null)
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false)
 
   const canCreate = user?.role === 'admin' || user?.role === 'hub_manager'
 
   useEffect(() => {
     fetchData()
+    fetchLocations()
   }, [])
 
   const fetchData = async () => {
@@ -40,14 +45,33 @@ export default function Parcels() {
     }
   }
 
+  const fetchLocations = async () => {
+    try {
+      const { data } = await api.get<PresetLocation[]>('/parcels/zones/preset_locations/')
+      setLocations(data)
+    } catch (err) {
+      console.error('Failed to fetch preset locations', err)
+    }
+  }
+
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
+    if (!selectedLocation) {
+      setError('Please select a delivery location from the preset list.')
+      return
+    }
     const formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData)
+    // Auto-fill pincode and zone from the selected location
+    data.pincode = selectedLocation.pincode
+    data.zone = String(selectedLocation.zone)
+    data.sender_address = selectedLocation.area_name
     try {
       await api.post('/parcels/parcels/', data)
       setShowForm(false)
+      setSelectedLocation(null)
+      setLocationSearch('')
       fetchData()
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { detail?: unknown } } } }
@@ -55,6 +79,12 @@ export default function Parcels() {
       setError(typeof detail === 'string' ? detail : 'Failed to create parcel')
     }
   }
+
+  const filteredLocations = locations.filter((loc) =>
+    loc.area_name.toLowerCase().includes(locationSearch.toLowerCase()) ||
+    loc.pincode.includes(locationSearch) ||
+    loc.zone_name.toLowerCase().includes(locationSearch.toLowerCase())
+  )
 
   const filtered = parcels.filter(
     (p) =>
@@ -87,17 +117,13 @@ export default function Parcels() {
         <form onSubmit={handleCreate} className={`${cardClass} space-y-5 p-6`}>
           <div>
             <h3 className="text-lg font-semibold text-slate-950">Register New Parcel</h3>
-            <p className="mt-1 text-sm text-slate-500">Capture sender, receiver, pincode, weight and priority details.</p>
+            <p className="mt-1 text-sm text-slate-500">Select a preset delivery location, then capture sender, receiver, weight and priority details.</p>
           </div>
           {error && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">Sender Name</label>
               <input name="sender_name" required className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Sender Address</label>
-              <input name="sender_address" required className={inputClass} />
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">Receiver Name</label>
@@ -111,9 +137,56 @@ export default function Parcels() {
               <label className="mb-1 block text-sm font-semibold text-slate-700">Receiver Phone</label>
               <input name="receiver_phone" required pattern="[0-9]+" className={inputClass} />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Pincode</label>
-              <input name="pincode" required className={inputClass} />
+            {/* Preset Location Dropdown — replaces free-text pincode/address */}
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-slate-700">Delivery Location (preset)</label>
+              <div className="relative">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by area name, pincode, or zone..."
+                    value={selectedLocation ? `${selectedLocation.area_name} — ${selectedLocation.pincode} (${selectedLocation.zone_name})` : locationSearch}
+                    onChange={(e) => {
+                      setLocationSearch(e.target.value)
+                      setSelectedLocation(null)
+                      setShowLocationDropdown(true)
+                    }}
+                    onFocus={() => setShowLocationDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
+                    className={`${inputClass} pl-9 pr-8`}
+                  />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                </div>
+                {showLocationDropdown && filteredLocations.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+                    {filteredLocations.map((loc) => (
+                      <button
+                        key={`${loc.zone}-${loc.pincode}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedLocation(loc)
+                          setLocationSearch('')
+                          setShowLocationDropdown(false)
+                        }}
+                        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-slate-50"
+                      >
+                        <div>
+                          <span className="font-medium text-slate-800">{loc.area_name}</span>
+                          <span className="ml-2 text-slate-500">Pincode: {loc.pincode}</span>
+                        </div>
+                        <span className="text-xs text-slate-400">{loc.zone_name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedLocation && (
+                <div className="mt-2 flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                  <span className="text-slate-600">Pincode: <strong className="text-slate-800">{selectedLocation.pincode}</strong></span>
+                  <span className="text-slate-600">Zone: <strong className="text-slate-800">{selectedLocation.zone_name}</strong></span>
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">Weight (kg)</label>
@@ -131,7 +204,7 @@ export default function Parcels() {
             <button type="submit" className={buttonPrimary}>
               Create Parcel
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className={buttonSecondary}>
+            <button type="button" onClick={() => { setShowForm(false); setSelectedLocation(null); setLocationSearch('') }} className={buttonSecondary}>
               Cancel
             </button>
           </div>

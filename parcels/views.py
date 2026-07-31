@@ -23,6 +23,28 @@ class ZoneViewSet(viewsets.ModelViewSet):
     serializer_class = ZoneSerializer
     permission_classes = [IsAuthenticated, IsAdminOrHubManager]
 
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def preset_locations(self, request):
+        """
+        Return preset demo locations derived from actual Zone data.
+        Each location has an area name, pincode, and zone reference so the
+        parcel registration form can offer a controlled, predictable dropdown
+        instead of free-text entry.
+        """
+        zones = Zone.objects.all().order_by("name")
+        locations = []
+        for zone in zones:
+            # Use the zone name as the area name and the start of the
+            # pincode range as the sample pincode. This is fully derived
+            # from Zone data — no separate hardcoded list to drift out of sync.
+            locations.append({
+                "area_name": zone.name,
+                "pincode": zone.pincode_range_start,
+                "zone": zone.id,
+                "zone_name": zone.name,
+            })
+        return Response(locations)
+
 
 class ParcelViewSet(viewsets.ModelViewSet):
     """
