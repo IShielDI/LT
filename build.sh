@@ -29,8 +29,8 @@ python manage.py collectstatic --noinput
 echo "==> Running database migrations"
 python manage.py migrate
 
-echo "==> Seeding initial users (idempotent — skips existing users)"
-python manage.py seed_users
+echo "==> Seeding initial users (TEMPORARY --reset to fix passwords from env vars)"
+python manage.py seed_users --reset
 
 echo "==> Seeding demo data (idempotent — skips if data already exists)"
 python manage.py seed_demo_data

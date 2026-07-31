@@ -13,8 +13,16 @@ User = get_user_model()
 class Command(BaseCommand):
     help = "Seed initial users for each role (admin, hub_manager, rider) from environment variables"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--reset",
+            action="store_true",
+            help="Delete existing seeded users before recreating them with current env vars.",
+        )
+
     def handle(self, *args, **options):
         """Execute the command to seed users."""
+        reset = options["reset"]
         self.stdout.write(self.style.SUCCESS("Starting user seeding..."))
 
         # Define user configurations
@@ -38,6 +46,26 @@ class Command(BaseCommand):
                 "is_staff": False,
             },
         ]
+
+        # If --reset, delete existing users that match the env var usernames
+        if reset:
+            deleted_count = 0
+            for config in user_configs:
+                username = os.environ.get(f"{config['prefix']}_USERNAME")
+                if username and User.objects.filter(username=username).exists():
+                    User.objects.filter(username=username).delete()
+                    deleted_count += 1
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"🗑️  Deleted existing user '{username}' for --reset"
+                        )
+                    )
+            if deleted_count:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Cleared {deleted_count} existing user(s) for re-seeding."
+                    )
+                )
 
         created_users = []
         skipped_users = []
