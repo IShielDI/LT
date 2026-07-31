@@ -2,7 +2,7 @@
 #
 # Build script for Render (free tier) deployment.
 # Builds the React frontend, copies its output into Django's static files
-# directory, then runs collectstatic and migrations.
+# directory, then runs collectstatic, migrations, and seeds initial data.
 #
 # This is an additional deployment path; the existing docker-compose.yml
 # setup for local full-stack dev is untouched.
@@ -28,5 +28,11 @@ python manage.py collectstatic --noinput
 
 echo "==> Running database migrations"
 python manage.py migrate
+
+echo "==> Seeding initial users (idempotent — skips existing users)"
+python manage.py seed_users
+
+echo "==> Seeding demo data (idempotent — skips if data already exists)"
+python manage.py seed_demo_data
 
 echo "==> Build complete"
