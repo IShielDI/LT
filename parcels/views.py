@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -6,7 +8,7 @@ from rest_framework.response import Response
 
 from core.permissions import IsAdminOrHubManager
 
-from .models import Parcel, Zone
+from .models import Parcel, ParcelStatus, ParcelStatusHistory, Zone
 from .serializers import (
     ParcelDetailSerializer,
     ParcelListSerializer,
@@ -14,6 +16,8 @@ from .serializers import (
     ZoneSerializer,
 )
 from .services import decode_qr_image, generate_qr_code
+
+logger = logging.getLogger("delivery_hub.parcels.views")
 
 
 class ZoneViewSet(viewsets.ModelViewSet):
@@ -118,6 +122,37 @@ class ParcelViewSet(viewsets.ModelViewSet):
         serializer = ParcelTrackingSerializer(parcel)
         return Response(serializer.data)
 
+    def perform_create(self, serializer):
+        """Create a parcel and immediately run the assignment engine for it."""
+        parcel = serializer.save()
+
+        # Record initial status history
+        ParcelStatusHistory.record(
+            parcel=parcel,
+            status=ParcelStatus.REGISTERED,
+            notes="Parcel registered via intake",
+        )
+
+        # Generate QR code
+        generate_qr_code(parcel)
+
+        # Immediately run the assignment engine for this single parcel
+        from dispatch.services import RiderAssignmentEngine
+
+        engine = RiderAssignmentEngine()
+        result = engine.assign_single_parcel(parcel)
+
+        if result["assigned"]:
+            # Parcel status is now 'assigned' — refresh from DB
+            parcel.refresh_from_db()
+        else:
+            # No eligible rider — leave as 'registered' and flag for attention
+            logger.warning(
+                "Parcel %s created but could not be auto-assigned: %s",
+                parcel.tracking_id,
+                result["reason"],
+            )
+
     @action(detail=True, methods=["post"])
     def mark_sorted(self, request, pk=None):
         """Mark a parcel as sorted."""
@@ -129,6 +164,11 @@ class ParcelViewSet(viewsets.ModelViewSet):
             )
         parcel.status = "sorted"
         parcel.save(update_fields=["status"])
+        ParcelStatusHistory.record(
+            parcel=parcel,
+            status=ParcelStatus.SORTED,
+            notes="Parcel marked as sorted",
+        )
         return Response(ParcelDetailSerializer(parcel).data)
 
     @action(detail=True, methods=["post"])

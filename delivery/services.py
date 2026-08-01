@@ -3,7 +3,7 @@ from typing import Optional
 
 from django.db import transaction
 
-from parcels.models import Parcel, ParcelStatus
+from parcels.models import Parcel, ParcelStatus, ParcelStatusHistory
 
 from .models import AttemptStatus, DeliveryAttempt, FailureReason
 
@@ -122,6 +122,11 @@ class ExceptionHandlingService:
                 self.validate_transition(parcel, ParcelStatus.DELIVERED)
                 parcel.status = ParcelStatus.DELIVERED
                 parcel.save(update_fields=["status"])
+                ParcelStatusHistory.record(
+                    parcel=parcel,
+                    status=ParcelStatus.DELIVERED,
+                    notes=f"Delivered on attempt #{attempt_number}",
+                )
 
             elif status == AttemptStatus.FAILED:
                 if attempt_number >= self.MAX_ATTEMPTS:
@@ -129,6 +134,11 @@ class ExceptionHandlingService:
                     self.validate_transition(parcel, ParcelStatus.FAILED)
                     parcel.status = ParcelStatus.FAILED
                     parcel.save(update_fields=["status"])
+                    ParcelStatusHistory.record(
+                        parcel=parcel,
+                        status=ParcelStatus.FAILED,
+                        notes=f"Permanently failed after {attempt_number} attempts. Reason: {failure_reason or 'unknown'}",
+                    )
                     logger.info(
                         "Parcel %s permanently failed after %d attempts",
                         parcel.tracking_id,
@@ -141,6 +151,11 @@ class ExceptionHandlingService:
                     )
                     parcel.status = ParcelStatus.REATTEMPT_SCHEDULED
                     parcel.save(update_fields=["status"])
+                    ParcelStatusHistory.record(
+                        parcel=parcel,
+                        status=ParcelStatus.REATTEMPT_SCHEDULED,
+                        notes=f"Attempt #{attempt_number} failed ({failure_reason or 'unknown'}). Reattempt #{attempt_number + 1} scheduled.",
+                    )
                     logger.info(
                         "Parcel %s scheduled for reattempt #%d",
                         parcel.tracking_id,
@@ -151,6 +166,11 @@ class ExceptionHandlingService:
                 self.validate_transition(parcel, ParcelStatus.REATTEMPT_SCHEDULED)
                 parcel.status = ParcelStatus.REATTEMPT_SCHEDULED
                 parcel.save(update_fields=["status"])
+                ParcelStatusHistory.record(
+                    parcel=parcel,
+                    status=ParcelStatus.REATTEMPT_SCHEDULED,
+                    notes=f"Reattempt #{attempt_number} scheduled",
+                )
 
         return attempt
 

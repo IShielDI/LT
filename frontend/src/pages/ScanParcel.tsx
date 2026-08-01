@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import api from '../lib/api'
-import type { Parcel, Rider, PaginatedResponse, PresetLocation } from '../types'
-import { useNavigate } from 'react-router-dom'
-import { Camera, Upload, CheckCircle, AlertCircle, Loader2, UserPlus, Send, X } from 'lucide-react'
-import { PageHeader, buttonPrimary, buttonSecondary, cardClass, inputClass } from '../components/ui'
+import type { Parcel, PresetLocation } from '../types'
+import { useNavigate, Link } from 'react-router-dom'
+import { Camera, Upload, CheckCircle, AlertCircle, Loader2, X, ArrowRight } from 'lucide-react'
+import { PageHeader, buttonPrimary, buttonSecondary, cardClass } from '../components/ui'
 
 type ScanMode = 'camera' | 'upload'
 
@@ -14,9 +14,6 @@ export default function ScanParcel() {
   const [scanning, setScanning] = useState(false)
   const [scanned, setScanned] = useState(false)
   const [parcel, setParcel] = useState<Parcel | null>(null)
-  const [eligibleRiders, setEligibleRiders] = useState<Rider[]>([])
-  const [selectedRiderId, setSelectedRiderId] = useState('')
-  const [assigning, setAssigning] = useState(false)
   const [error, setError] = useState('')
   const [cameraError, setCameraError] = useState('')
   const [locations, setLocations] = useState<PresetLocation[]>([])
@@ -103,19 +100,6 @@ export default function ScanParcel() {
       // Fetch parcel details
       const { data: parcelData } = await api.get<Parcel>(`/parcels/parcels/${trackingId}/`)
       setParcel(parcelData)
-
-      // Fetch eligible riders for this parcel's zone
-      const { data: ridersData } = await api.get<PaginatedResponse<Rider>>('/riders/riders/?page_size=100')
-      const allRiders = ridersData.results
-
-      // Filter riders: same zone, available, with remaining capacity
-      const eligible = allRiders.filter((r) => {
-        if (!r.is_available || r.remaining_capacity <= 0) return false
-        if (!parcelData.zone || !r.zone) return true
-        return r.zone === parcelData.zone
-      })
-
-      setEligibleRiders(eligible)
     } catch (err) {
       console.error('Failed to fetch parcel:', err)
       setError(`Parcel with tracking ID "${trackingId}" not found.`)
@@ -123,50 +107,9 @@ export default function ScanParcel() {
     }
   }
 
-  const handleAutoAssign = async () => {
-    if (!parcel) return
-    setAssigning(true)
-    setError('')
-    try {
-      const { data } = await api.post('/dispatch/assignments/run_assignment/')
-      if (data.assigned.length > 0) {
-        alert(`Auto-assigned to ${data.assigned[0].rider_name}`)
-        navigate('/dispatch')
-      } else {
-        setError('No eligible riders available for auto-assignment.')
-      }
-    } catch (err) {
-      console.error('Auto-assign error:', err)
-      setError('Failed to auto-assign parcel.')
-    } finally {
-      setAssigning(false)
-    }
-  }
-
-  const handleManualAssign = async () => {
-    if (!parcel || !selectedRiderId) return
-    setAssigning(true)
-    setError('')
-    try {
-      await api.post('/dispatch/assignments/manual_assign/', {
-        parcel: parcel.tracking_id,
-        rider: Number(selectedRiderId),
-      })
-      alert('Parcel assigned successfully!')
-      navigate('/dispatch')
-    } catch (err) {
-      console.error('Manual assign error:', err)
-      setError('Failed to assign parcel.')
-    } finally {
-      setAssigning(false)
-    }
-  }
-
   const resetScan = () => {
     setScanned(false)
     setParcel(null)
-    setEligibleRiders([])
-    setSelectedRiderId('')
     setError('')
     setScanMode('camera')
   }
@@ -179,7 +122,7 @@ export default function ScanParcel() {
     <div className="space-y-6">
       <PageHeader
         title="Scan Parcel"
-        description="Scan a QR/barcode to look up parcel details and assign a rider."
+        description="Scan a QR/barcode to look up parcel details. Assignment happens automatically on intake."
         actions={
           <button onClick={() => navigate('/dispatch')} className={buttonSecondary}>
             <X className="w-4 h-4" />
@@ -312,72 +255,44 @@ export default function ScanParcel() {
                   <p className="text-sm text-slate-500">Weight</p>
                   <p className="text-sm font-medium text-slate-800">{parcel.weight} kg</p>
                 </div>
+                <div>
+                  <p className="text-sm text-slate-500">Status</p>
+                  <p className="text-sm font-medium text-slate-800 capitalize">{parcel.status.replace(/_/g, ' ')}</p>
+                </div>
+                {parcel.current_assignment && (
+                  <div>
+                    <p className="text-sm text-slate-500">Assigned Rider</p>
+                    <Link
+                      to={`/riders/${parcel.current_assignment.rider_id}`}
+                      className="text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                    >
+                      {parcel.current_assignment.rider_name}
+                    </Link>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
 
-          {/* Rider Assignment */}
-          {parcel && (
-            <div className={`${cardClass} p-6 space-y-4`}>
-              <h3 className="text-lg font-semibold text-slate-950">Assign Rider</h3>
-
-              {error && (
-                <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                  <AlertCircle className="w-5 h-5" />
-                  {error}
+              {parcel.is_unassigned && (
+                <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <div>
+                    <p className="font-semibold">Unassigned — Needs Attention</p>
+                    <p className="text-amber-700">No eligible rider was available when this parcel was created. It remains in 'registered' status until a rider becomes available.</p>
+                  </div>
                 </div>
               )}
 
-              {eligibleRiders.length === 0 ? (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
-                  No eligible riders available for this parcel's zone with remaining capacity.
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-1 block text-sm font-semibold text-slate-700">Select Rider</label>
-                      <select
-                        value={selectedRiderId}
-                        onChange={(e) => setSelectedRiderId(e.target.value)}
-                        className={inputClass}
-                      >
-                        <option value="">Choose a rider...</option>
-                        {eligibleRiders.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.user_name || r.username} — {r.zone_name || 'No zone'} (Cap: {r.remaining_capacity}/{r.capacity})
-                          </option>
-                        ))}
-                      </select>
-                      <p className="mt-2 text-sm text-slate-500">
-                        {eligibleRiders.length} eligible rider(s) in {parcel.zone_name || getLocationName(parcel.zone || 0)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={handleManualAssign}
-                      disabled={!selectedRiderId || assigning}
-                      className={buttonPrimary}
-                    >
-                      {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                      {assigning ? 'Assigning...' : 'Assign Selected Rider'}
-                    </button>
-                    <button
-                      onClick={handleAutoAssign}
-                      disabled={assigning}
-                      className={buttonSecondary}
-                    >
-                      {assigning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      Auto-Assign
-                    </button>
-                    <button onClick={resetScan} className={buttonSecondary}>
-                      Scan Another
-                    </button>
-                  </div>
-                </>
-              )}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Link
+                  to={`/parcels/${parcel.tracking_id}`}
+                  className={buttonPrimary}
+                >
+                  View Parcel Details <ArrowRight className="w-4 h-4" />
+                </Link>
+                <button onClick={resetScan} className={buttonSecondary}>
+                  Scan Another
+                </button>
+              </div>
             </div>
           )}
         </div>

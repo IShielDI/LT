@@ -6,7 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Parcels from './pages/Parcels'
+import ParcelDetail from './pages/ParcelDetail'
 import Riders from './pages/Riders'
+import RiderDetail from './pages/RiderDetail'
 import Dispatch from './pages/Dispatch'
 import ScanParcel from './pages/ScanParcel'
 import Delivery from './pages/Delivery'
@@ -47,10 +49,26 @@ export default function App() {
           }
         />
         <Route
+          path="/parcels/:trackingId"
+          element={
+            <ProtectedRoute>
+              <Layout><ParcelDetail /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/riders"
           element={
             <ProtectedRoute roles={['admin', 'hub_manager']}>
               <Layout><Riders /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/riders/:riderId"
+          element={
+            <ProtectedRoute roles={['admin', 'hub_manager']}>
+              <Layout><RiderDetail /></Layout>
             </ProtectedRoute>
           }
         />

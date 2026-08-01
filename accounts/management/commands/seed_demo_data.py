@@ -34,7 +34,7 @@ except ImportError as exc:  # pragma: no cover - exercised only when dependency 
 from accounts.models import UserRole
 from delivery.models import AttemptStatus, DeliveryAttempt, FailureReason
 from dispatch.models import Assignment, AssignmentStatus
-from parcels.models import Parcel, ParcelPriority, ParcelStatus, Zone
+from parcels.models import Parcel, ParcelPriority, ParcelStatus, ParcelStatusHistory, Zone
 from riders.models import Rider, VehicleType
 
 
@@ -97,6 +97,7 @@ class Command(BaseCommand):
         parcels = self._create_parcels(zones, parcel_count)
         assignments = self._create_assignments(parcels, riders)
         attempts = self._create_delivery_attempts(parcels)
+        self._create_status_history(parcels, assignments)
         self._refresh_rider_loads(riders)
 
         self.stdout.write(self.style.SUCCESS("\nDemo data seeded successfully."))
@@ -126,6 +127,7 @@ class Command(BaseCommand):
         # first to make the reset summary and ordering clear.
         DeliveryAttempt.objects.filter(parcel__in=demo_parcels).delete()
         Assignment.objects.filter(parcel__in=demo_parcels).delete()
+        ParcelStatusHistory.objects.filter(parcel__in=demo_parcels).delete()
         demo_parcels.delete()
 
         Rider.objects.filter(user__username__startswith=DEMO_USER_PREFIX).delete()
@@ -425,6 +427,41 @@ class Command(BaseCommand):
         if reason == FailureReason.DAMAGED:
             return f"Attempt {attempt}: parcel marked damaged during delivery scan."
         return f"Attempt {attempt}: delivery exception recorded."
+
+    def _create_status_history(
+        self, parcels: list[Parcel], assignments: list[Assignment]
+    ) -> None:
+        """Create status history entries for seeded parcels so the timeline has data."""
+        assignment_by_parcel = {a.parcel_id: a for a in assignments}
+
+        for parcel in parcels:
+            # Always record 'registered' as the initial state
+            ParcelStatusHistory.objects.create(
+                parcel=parcel,
+                status=ParcelStatus.REGISTERED,
+                changed_at=parcel.created_at,
+                notes="Parcel registered via intake",
+            )
+
+            # If the parcel has an assignment, record the assigned state
+            assignment = assignment_by_parcel.get(parcel.pk)
+            if assignment:
+                ParcelStatusHistory.objects.create(
+                    parcel=parcel,
+                    status=ParcelStatus.ASSIGNED,
+                    changed_at=assignment.assigned_at,
+                    notes=f"Assigned to {assignment.rider}",
+                    rider=assignment.rider,
+                )
+
+            # Record the current status as the latest entry
+            if parcel.status not in (ParcelStatus.REGISTERED, ParcelStatus.ASSIGNED):
+                ParcelStatusHistory.objects.create(
+                    parcel=parcel,
+                    status=parcel.status,
+                    changed_at=parcel.updated_at,
+                    notes=f"Status updated to {parcel.get_status_display()}",
+                )
 
     def _refresh_rider_loads(self, riders: list[Rider]) -> None:
         active_counts = (

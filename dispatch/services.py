@@ -4,7 +4,7 @@ from typing import Dict, List
 from django.db import transaction
 from django.db.models import Case, F, IntegerField, Q, Value, When
 
-from parcels.models import Parcel, ParcelPriority, ParcelStatus
+from parcels.models import Parcel, ParcelPriority, ParcelStatus, ParcelStatusHistory
 from riders.models import Rider
 
 from .models import Assignment, AssignmentStatus
@@ -81,7 +81,77 @@ class RiderAssignmentEngine:
         parcel.status = ParcelStatus.ASSIGNED
         parcel.save(update_fields=["status"])
 
+        # Record status history for the timeline
+        ParcelStatusHistory.record(
+            parcel=parcel,
+            status=ParcelStatus.ASSIGNED,
+            notes=f"Assigned to {rider}",
+            rider=rider,
+        )
+
         return assignment
+
+    def assign_single_parcel(self, parcel: Parcel) -> dict:
+        """
+        Assign a single parcel to the best available rider.
+        Used for immediate auto-assignment on parcel creation (QR scan intake).
+
+        Returns a dict with:
+        - assigned: True/False
+        - assignment: the Assignment object if assigned, else None
+        - reason: reason for not assigning, if applicable
+        """
+        if parcel.status not in (ParcelStatus.REGISTERED, ParcelStatus.SORTED):
+            return {
+                "assigned": False,
+                "assignment": None,
+                "reason": f"Parcel is in status '{parcel.status}' — only 'registered' or 'sorted' parcels can be assigned.",
+            }
+
+        riders = self.get_available_riders()
+
+        # Try same-zone riders first
+        if parcel.zone:
+            for rider in riders:
+                if rider.zone_id == parcel.zone_id:
+                    with transaction.atomic():
+                        locked_rider = Rider.objects.select_for_update().get(
+                            pk=rider.pk
+                        )
+                        if locked_rider.remaining_capacity > 0:
+                            assignment = self._assign_parcel_to_rider(
+                                parcel, locked_rider
+                            )
+                            return {
+                                "assigned": True,
+                                "assignment": assignment,
+                                "reason": None,
+                            }
+
+        # Fall back to any rider with remaining capacity
+        for rider in riders:
+            with transaction.atomic():
+                locked_rider = Rider.objects.select_for_update().get(
+                    pk=rider.pk
+                )
+                if locked_rider.remaining_capacity > 0:
+                    assignment = self._assign_parcel_to_rider(
+                        parcel, locked_rider
+                    )
+                    return {
+                        "assigned": True,
+                        "assignment": assignment,
+                        "reason": None,
+                    }
+
+        reason = "No rider with available capacity"
+        if parcel.zone:
+            reason = f"No rider available in zone {parcel.zone}"
+        return {
+            "assigned": False,
+            "assignment": None,
+            "reason": reason,
+        }
 
     def run(self) -> Dict[str, List[dict]]:
         """

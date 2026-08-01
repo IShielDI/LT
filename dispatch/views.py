@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from core.permissions import IsAdminOrHubManager
 from delivery.services import InvalidStatusTransitionError
-from parcels.models import Parcel, ParcelStatus
+from parcels.models import Parcel, ParcelStatus, ParcelStatusHistory
 from riders.models import Rider
 
 from .models import Assignment, AssignmentStatus
@@ -129,6 +129,14 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         parcel.status = ParcelStatus.ASSIGNED
         parcel.save(update_fields=["status"])
 
+        # Record status history
+        ParcelStatusHistory.record(
+            parcel=parcel,
+            status=ParcelStatus.ASSIGNED,
+            notes=f"Manually assigned to {rider}",
+            rider=rider,
+        )
+
         return Response(AssignmentSerializer(assignment).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
@@ -147,6 +155,14 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         assignment.parcel.status = ParcelStatus.IN_TRANSIT
         assignment.parcel.save(update_fields=["status"])
 
+        # Record status history
+        ParcelStatusHistory.record(
+            parcel=assignment.parcel,
+            status=ParcelStatus.IN_TRANSIT,
+            notes=f"In transit with {assignment.rider}",
+            rider=assignment.rider,
+        )
+
         return Response(AssignmentSerializer(assignment).data)
 
     @action(detail=True, methods=["post"])
@@ -164,5 +180,13 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         # Also update parcel status
         assignment.parcel.status = ParcelStatus.DELIVERED
         assignment.parcel.save(update_fields=["status"])
+
+        # Record status history
+        ParcelStatusHistory.record(
+            parcel=assignment.parcel,
+            status=ParcelStatus.DELIVERED,
+            notes=f"Delivered by {assignment.rider}",
+            rider=assignment.rider,
+        )
 
         return Response(AssignmentSerializer(assignment).data)

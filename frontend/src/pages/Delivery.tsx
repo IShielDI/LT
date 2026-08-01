@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../lib/api'
 import type { DeliveryAttempt, PaginatedResponse } from '../types'
 import { Truck, AlertCircle } from 'lucide-react'
@@ -139,7 +140,14 @@ export default function Delivery() {
               ) : (
                 attempts.map((a) => (
                   <tr key={a.id} className={tableRowClass}>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-600">{a.parcel_tracking_id.slice(0, 8)}...</td>
+                    <td className="px-6 py-4">
+                      <Link
+                        to={`/parcels/${a.parcel_tracking_id}`}
+                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      >
+                        {a.parcel_tracking_id.slice(0, 8)}...
+                      </Link>
+                    </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-800">{a.attempt_number}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${

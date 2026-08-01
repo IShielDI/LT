@@ -25,6 +25,25 @@ export type ParcelStatus =
 
 export type ParcelPriority = 'express' | 'standard'
 
+export interface ParcelStatusHistoryEntry {
+  id: number
+  status: ParcelStatus
+  status_display: string
+  changed_at: string
+  notes: string
+  rider: number | null
+  rider_id: number | null
+  rider_name: string | null
+}
+
+export interface CurrentAssignment {
+  id: number
+  rider_id: number
+  rider_name: string
+  assigned_at: string
+  status: string
+}
+
 export interface Parcel {
   tracking_id: string
   sender_name: string
@@ -39,6 +58,9 @@ export interface Parcel {
   weight: number
   status: ParcelStatus
   qr_code?: string | null
+  is_unassigned?: boolean
+  current_assignment?: CurrentAssignment | null
+  status_history?: ParcelStatusHistoryEntry[]
   created_at: string
   updated_at: string
 }
@@ -56,6 +78,28 @@ export interface ParcelList {
   created_at: string
 }
 
+export interface RiderPerformance {
+  total_deliveries: number
+  total_attempts: number
+  failed: number
+  reattempted: number
+  success_rate: number
+  failure_rate: number
+  avg_delivery_minutes: number
+  delivered_today: number
+  delivered_this_week: number
+}
+
+export interface AssignedParcel {
+  tracking_id: string
+  receiver_name: string
+  pincode: string
+  zone_name: string | null
+  priority: ParcelPriority
+  status: ParcelStatus
+  created_at: string
+}
+
 export interface Rider {
   id: number
   user: number
@@ -68,6 +112,8 @@ export interface Rider {
   zone_name: string | null
   is_available: boolean
   vehicle_type: string
+  performance?: RiderPerformance
+  assigned_parcels?: AssignedParcel[]
 }
 
 export interface Assignment {

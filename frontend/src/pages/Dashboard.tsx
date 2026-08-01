@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../lib/api'
 import type { ParcelList, PaginatedResponse } from '../types'
-import { Package, CheckCircle, XCircle, Clock, TrendingUp, ArrowUpRight, Activity } from 'lucide-react'
+import { Package, CheckCircle, XCircle, Clock, TrendingUp, ArrowUpRight, Activity, AlertTriangle } from 'lucide-react'
 import { CardSkeleton, EmptyState, PageHeader, Skeleton, TableSkeleton, cardClass, tableHeadClass, tableRowClass } from '../components/ui'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -40,6 +41,7 @@ export default function Dashboard() {
   const failed = parcels.filter((p) => p.status === 'failed').length
   const inTransit = parcels.filter((p) => p.status === 'in_transit').length
   const total = parcels.length
+  const unassigned = parcels.filter((p) => p.status === 'registered' || p.status === 'sorted')
 
   const statusData = Object.entries(
     parcels.reduce((acc, p) => {
@@ -109,6 +111,42 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Unassigned parcels needing attention */}
+      {unassigned.length > 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <h3 className="text-lg font-semibold text-amber-900">
+              Unassigned Parcels ({unassigned.length})
+            </h3>
+          </div>
+          <p className="mb-4 text-sm text-amber-700">
+            These parcels could not be auto-assigned because no eligible rider was available in their zone. They need attention.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {unassigned.slice(0, 8).map((parcel) => (
+              <Link
+                key={parcel.tracking_id}
+                to={`/parcels/${parcel.tracking_id}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-medium text-amber-800 shadow-sm transition-all hover:border-amber-400 hover:bg-amber-100"
+              >
+                <span className="font-mono text-xs">{parcel.tracking_id.slice(0, 8)}...</span>
+                <span className="text-amber-600">→</span>
+                <span>{parcel.receiver_name}</span>
+              </Link>
+            ))}
+            {unassigned.length > 8 && (
+              <Link
+                to="/parcels"
+                className="inline-flex items-center rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-800 shadow-sm transition-all hover:bg-amber-100"
+              >
+                View all {unassigned.length} unassigned →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className={`${cardClass} p-6`}>
@@ -172,8 +210,13 @@ export default function Dashboard() {
             <tbody className="divide-y divide-slate-100">
               {parcels.slice(0, 10).map((parcel) => (
                 <tr key={parcel.tracking_id} className={tableRowClass}>
-                  <td className="px-6 py-4 text-sm font-mono text-slate-600">
-                    {parcel.tracking_id.slice(0, 8)}...
+                  <td className="px-6 py-4">
+                    <Link
+                      to={`/parcels/${parcel.tracking_id}`}
+                      className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                    >
+                      {parcel.tracking_id.slice(0, 8)}...
+                    </Link>
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-slate-800">{parcel.receiver_name}</td>
                   <td className="px-6 py-4 text-sm text-slate-600">{parcel.zone_name || '—'}</td>

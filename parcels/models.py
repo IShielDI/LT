@@ -185,3 +185,89 @@ class Parcel(models.Model):
             if zone:
                 self.zone = zone
         super().save(*args, **kwargs)
+
+    @property
+    def is_unassigned(self) -> bool:
+        """Check if this parcel is registered/sorted but has no active assignment."""
+        if self.status not in (ParcelStatus.REGISTERED, ParcelStatus.SORTED):
+            return False
+        return not self.assignments.filter(
+            status__in=["assigned", "in_transit"]
+        ).exists()
+
+    @property
+    def current_assignment(self):
+        """Return the most recent active assignment for this parcel, if any."""
+        return (
+            self.assignments.select_related("rider__user", "rider__zone")
+            .filter(status__in=["assigned", "in_transit"])
+            .order_by("-assigned_at")
+            .first()
+        )
+
+
+class ParcelStatusHistory(models.Model):
+    """
+    Records every status change for a parcel, providing a full audit trail
+    and the data source for the parcel detail page's lifecycle timeline.
+    """
+
+    parcel = models.ForeignKey(
+        Parcel,
+        on_delete=models.CASCADE,
+        related_name="status_history",
+        verbose_name=_("Parcel"),
+    )
+    status = models.CharField(
+        max_length=30,
+        choices=ParcelStatus.choices,
+        verbose_name=_("Status"),
+        db_index=True,
+    )
+    changed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Changed At"),
+        db_index=True,
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name=_("Notes"),
+        help_text=_("Optional context about this status change (e.g. failure reason, attempt number)"),
+    )
+    rider = models.ForeignKey(
+        "riders.Rider",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="parcel_status_entries",
+        verbose_name=_("Rider"),
+        help_text=_("Rider associated with this status change (e.g. assignment)"),
+    )
+
+    class Meta:
+        verbose_name = _("Parcel Status History")
+        verbose_name_plural = _("Parcel Status History")
+        ordering = ["changed_at"]
+        indexes = [
+            models.Index(fields=["parcel", "changed_at"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.parcel.tracking_id} -> {self.status} @ {self.changed_at}"
+
+    @classmethod
+    def record(
+        cls,
+        parcel: Parcel,
+        status: str,
+        notes: str = "",
+        rider=None,
+    ) -> "ParcelStatusHistory":
+        """Create a status history entry for a parcel."""
+        return cls.objects.create(
+            parcel=parcel,
+            status=status,
+            notes=notes,
+            rider=rider,
+        )

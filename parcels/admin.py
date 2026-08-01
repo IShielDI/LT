@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Parcel, Zone
+from .models import Parcel, ParcelStatusHistory, Zone
 
 
 @admin.register(Zone)
@@ -60,3 +60,14 @@ class ParcelAdmin(admin.ModelAdmin):
             {"fields": ("created_at", "updated_at")},
         ),
     )
+
+
+@admin.register(ParcelStatusHistory)
+class ParcelStatusHistoryAdmin(admin.ModelAdmin):
+    """Admin configuration for ParcelStatusHistory model."""
+
+    list_display = ["parcel", "status", "changed_at", "rider"]
+    list_filter = ["status", "changed_at"]
+    search_fields = ["parcel__tracking_id", "notes"]
+    readonly_fields = ["parcel", "status", "changed_at", "notes", "rider"]
+    ordering = ["-changed_at"]

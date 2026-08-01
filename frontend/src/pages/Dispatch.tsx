@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../lib/api'
 import type { Assignment, PaginatedResponse, AssignmentResult, Parcel, Rider } from '../types'
 import { Send, AlertCircle, CheckCircle, Loader2, Wifi, WifiOff, UserPlus, X } from 'lucide-react'
@@ -49,7 +50,7 @@ export default function Dispatch() {
     try {
       const [parcelsRes, ridersRes] = await Promise.all([
         api.get<PaginatedResponse<Parcel>>('/parcels/parcels/?page_size=100'),
-        api.get<PaginatedResponse<Rider>>('/riders/riders/?page_size=100'),
+        api.get<PaginatedResponse<Rider>>('/riders/?page_size=100'),
       ])
       // Only show parcels that are in 'registered' or 'sorted' state (assignable)
       setParcels(parcelsRes.data.results.filter((p) => p.status === 'registered' || p.status === 'sorted'))
@@ -308,8 +309,22 @@ export default function Dispatch() {
               ) : (
                 assignments.map((a) => (
                   <tr key={a.id} className={tableRowClass}>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-600">{a.parcel_tracking_id.slice(0, 8)}...</td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-800">{a.rider_name}</td>
+                    <td className="px-6 py-4">
+                      <Link
+                        to={`/parcels/${a.parcel_tracking_id}`}
+                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      >
+                        {a.parcel_tracking_id.slice(0, 8)}...
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        to={`/riders/${a.rider}`}
+                        className="text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      >
+                        {a.rider_name}
+                      </Link>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         a.status === 'delivered' ? 'bg-green-100 text-green-700' :

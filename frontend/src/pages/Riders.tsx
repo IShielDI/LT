@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../lib/api'
 import type { Rider, PaginatedResponse, Zone } from '../types'
 import { Bike } from 'lucide-react'
@@ -46,7 +47,11 @@ export default function Riders() {
           </div>
         ) : (
           riders.map((rider) => (
-            <div key={rider.id} className={`${cardClass} p-6 hover:-translate-y-1`}>
+            <Link
+              key={rider.id}
+              to={`/riders/${rider.id}`}
+              className={`${cardClass} p-6 hover:-translate-y-1`}
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-700 to-teal-500 shadow-lg shadow-primary-900/20">
                   <Bike className="w-6 h-6 text-white" />
@@ -82,7 +87,7 @@ export default function Riders() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>

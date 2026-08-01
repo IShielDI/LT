@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
 import type { ParcelList, PaginatedResponse, PresetLocation } from '../types'
 import { useAuthStore } from '../store/auth'
-import { Search, Package, Scan } from 'lucide-react'
+import { Search, Package, Scan, AlertTriangle } from 'lucide-react'
 import { EmptyState, PageHeader, TableSkeleton, buttonPrimary, cardClass, inputClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -115,8 +115,18 @@ export default function Parcels() {
               ) : (
                 filtered.map((parcel) => (
                   <tr key={parcel.tracking_id} className={tableRowClass}>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-600">
-                      {parcel.tracking_id.slice(0, 8)}...
+                    <td className="px-6 py-4">
+                      <Link
+                        to={`/parcels/${parcel.tracking_id}`}
+                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      >
+                        {parcel.tracking_id.slice(0, 8)}...
+                      </Link>
+                      {parcel.status === 'registered' && (
+                        <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                          <AlertTriangle className="w-3 h-3" /> Unassigned
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-800">{parcel.sender_name}</td>
                     <td className="px-6 py-4 text-sm text-slate-700">{parcel.receiver_name}</td>

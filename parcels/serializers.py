@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Parcel, Zone
+from .models import Parcel, ParcelStatusHistory, Zone
 
 
 class ZoneSerializer(serializers.ModelSerializer):
@@ -33,10 +33,39 @@ class ParcelListSerializer(serializers.ModelSerializer):
         read_only_fields = ["tracking_id", "created_at", "updated_at"]
 
 
+class ParcelStatusHistorySerializer(serializers.ModelSerializer):
+    """Serializer for ParcelStatusHistory model."""
+
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    rider_name = serializers.CharField(
+        source="rider.user.get_full_name", read_only=True, allow_null=True
+    )
+    rider_id = serializers.IntegerField(source="rider.id", read_only=True, allow_null=True)
+
+    class Meta:
+        model = ParcelStatusHistory
+        fields = [
+            "id",
+            "status",
+            "status_display",
+            "changed_at",
+            "notes",
+            "rider",
+            "rider_id",
+            "rider_name",
+        ]
+        read_only_fields = fields
+
+
 class ParcelDetailSerializer(serializers.ModelSerializer):
     """Full serializer for parcel detail views."""
 
     zone_name = serializers.CharField(source="zone.name", read_only=True, allow_null=True)
+    status_history = ParcelStatusHistorySerializer(
+        source="status_history", many=True, read_only=True
+    )
+    is_unassigned = serializers.BooleanField(read_only=True)
+    current_assignment = serializers.SerializerMethodField()
 
     class Meta:
         model = Parcel
@@ -54,10 +83,26 @@ class ParcelDetailSerializer(serializers.ModelSerializer):
             "weight",
             "status",
             "qr_code",
+            "is_unassigned",
+            "current_assignment",
+            "status_history",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["tracking_id", "qr_code", "created_at", "updated_at"]
+
+    def get_current_assignment(self, obj):
+        assignment = obj.current_assignment
+        if not assignment:
+            return None
+        return {
+            "id": assignment.id,
+            "rider_id": assignment.rider_id,
+            "rider_name": assignment.rider.user.get_full_name()
+            or assignment.rider.user.username,
+            "assigned_at": assignment.assigned_at,
+            "status": assignment.status,
+        }
 
     def validate_weight(self, value):
         if value < 0:
