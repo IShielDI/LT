@@ -2,13 +2,14 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import {
   LayoutDashboard, Package, Bike, Send, Scan, Truck, FileText,
-  Search, LogOut, Menu, X, Bell, ChevronRight, Warehouse,
+  Search, LogOut, Menu, X, Bell, ChevronRight, Warehouse, CalendarDays,
 } from 'lucide-react'
 import { useState } from 'react'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'hub_manager', 'rider'] },
   { to: '/parcels', label: 'Parcels', icon: Package, roles: ['admin', 'hub_manager', 'rider'] },
+  { to: '/calendar', label: 'Calendar', icon: CalendarDays, roles: ['admin', 'hub_manager', 'rider'] },
   { to: '/riders', label: 'Riders', icon: Bike, roles: ['admin', 'hub_manager'] },
   { to: '/dispatch', label: 'Dispatch', icon: Send, roles: ['admin', 'hub_manager'] },
   { to: '/scan', label: 'Scan Parcel', icon: Scan, roles: ['admin', 'hub_manager', 'rider'] },

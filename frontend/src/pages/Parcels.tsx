@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import api from '../lib/api'
 import type { ParcelList, PaginatedResponse, PresetLocation } from '../types'
 import { useAuthStore } from '../store/auth'
-import { Search, Package, Scan, AlertTriangle } from 'lucide-react'
+import { Search, Package, Scan, AlertTriangle, X } from 'lucide-react'
 import { EmptyState, PageHeader, TableSkeleton, buttonPrimary, cardClass, inputClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -16,13 +16,26 @@ const STATUS_COLORS: Record<string, string> = {
   reattempt_scheduled: 'bg-purple-100 text-purple-700',
 }
 
+const STATUS_OPTIONS = [
+  { value: '', label: 'All statuses' },
+  { value: 'registered', label: 'Registered' },
+  { value: 'sorted', label: 'Sorted' },
+  { value: 'assigned', label: 'Assigned' },
+  { value: 'in_transit', label: 'In Transit' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'reattempt_scheduled', label: 'Reattempt Scheduled' },
+]
+
 export default function Parcels() {
   const { user } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [parcels, setParcels] = useState<ParcelList[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
+  const statusParam = searchParams.get('status') || ''
   const canCreate = user?.role === 'admin' || user?.role === 'hub_manager'
 
   useEffect(() => {
@@ -49,11 +62,28 @@ export default function Parcels() {
     }
   }
 
+  const setStatusFilter = (value: string) => {
+    const next = new URLSearchParams(searchParams)
+    if (value) {
+      next.set('status', value)
+    } else {
+      next.delete('status')
+    }
+    setSearchParams(next, { replace: true })
+  }
+
+  const clearStatusFilter = () => {
+    const next = new URLSearchParams(searchParams)
+    next.delete('status')
+    setSearchParams(next, { replace: true })
+  }
+
   const filtered = parcels.filter(
     (p) =>
-      p.tracking_id.toLowerCase().includes(search.toLowerCase()) ||
-      p.receiver_name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sender_name.toLowerCase().includes(search.toLowerCase())
+      (statusParam ? p.status === statusParam : true) &&
+      (p.tracking_id.toLowerCase().includes(search.toLowerCase()) ||
+        p.receiver_name.toLowerCase().includes(search.toLowerCase()) ||
+        p.sender_name.toLowerCase().includes(search.toLowerCase()))
   )
 
   if (loading) {
@@ -76,16 +106,44 @@ export default function Parcels() {
         )}
       />
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by tracking ID, sender, or receiver..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={`${inputClass} pl-10`}
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by tracking ID, sender, or receiver..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={`${inputClass} pl-10`}
+          />
+        </div>
+        <select
+          value={statusParam}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className={`${inputClass} sm:w-56`}
+          aria-label="Filter by status"
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
+
+      {statusParam && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-slate-500">Filtered by status:</span>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[statusParam] || 'bg-gray-100 text-gray-700'}`}>
+            {statusParam.replace(/_/g, ' ')}
+            <button
+              onClick={clearStatusFilter}
+              className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-black/10"
+              aria-label="Clear status filter"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        </div>
+      )}
 
       <div className={`${cardClass} overflow-hidden`}>
         <div className="overflow-x-auto">
@@ -106,9 +164,9 @@ export default function Parcels() {
                   <td colSpan={6}>
                     <EmptyState
                       icon={Package}
-                      title={search ? 'No parcels match your search' : 'No parcels yet'}
-                      description={search ? 'Try another tracking ID, sender, or receiver name.' : 'Parcels appear here after being scanned on the Dispatch page.'}
-                      action={!search && canCreate ? <button onClick={() => navigate('/dispatch')} className={buttonPrimary}><Scan className="h-4 w-4" /> Go to Scan</button> : undefined}
+                      title={(search || statusParam) ? 'No parcels match your filters' : 'No parcels yet'}
+                      description={(search || statusParam) ? 'Try adjusting your search or status filter.' : 'Parcels appear here after being scanned on the Dispatch page.'}
+                      action={!search && !statusParam && canCreate ? <button onClick={() => navigate('/dispatch')} className={buttonPrimary}><Scan className="h-4 w-4" /> Go to Scan</button> : undefined}
                     />
                   </td>
                 </tr>

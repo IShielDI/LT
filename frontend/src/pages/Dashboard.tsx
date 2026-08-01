@@ -59,10 +59,10 @@ export default function Dashboard() {
   ).map(([zone, count]) => ({ zone, count }))
 
   const stats = [
-    { label: 'Total Parcels', value: total, icon: Package, color: 'from-primary-700 to-primary-500', trend: '+12.4%' },
-    { label: 'Delivered', value: delivered, icon: CheckCircle, color: 'from-emerald-600 to-teal-500', trend: '+8.2%' },
-    { label: 'Failed', value: failed, icon: XCircle, color: 'from-red-600 to-rose-500', trend: failed === 0 ? '0 issues' : 'Needs review' },
-    { label: 'In Transit', value: inTransit, icon: Clock, color: 'from-amber-600 to-orange-500', trend: 'Live' },
+    { label: 'Total Parcels', value: total, icon: Package, color: 'from-primary-700 to-primary-500', trend: '+12.4%', to: '/parcels' },
+    { label: 'Delivered', value: delivered, icon: CheckCircle, color: 'from-emerald-600 to-teal-500', trend: '+8.2%', to: '/parcels?status=delivered' },
+    { label: 'Failed', value: failed, icon: XCircle, color: 'from-red-600 to-rose-500', trend: failed === 0 ? '0 issues' : 'Needs review', to: '/parcels?status=failed' },
+    { label: 'In Transit', value: inTransit, icon: Clock, color: 'from-amber-600 to-orange-500', trend: 'Live', to: '/parcels?status=in_transit' },
   ]
 
   if (loading) {
@@ -93,7 +93,11 @@ export default function Dashboard() {
       {/* Stats cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/90">
+          <Link
+            key={stat.label}
+            to={stat.to}
+            className="block cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70 transition-all hover:-translate-y-1 hover:border-primary-400 hover:shadow-xl hover:shadow-slate-200/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">{stat.label}</p>
@@ -107,7 +111,7 @@ export default function Dashboard() {
                 <stat.icon className="h-7 w-7 text-white" />
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

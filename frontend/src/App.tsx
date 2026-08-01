@@ -14,6 +14,7 @@ import ScanParcel from './pages/ScanParcel'
 import Delivery from './pages/Delivery'
 import Reports from './pages/Reports'
 import Tracking from './pages/Tracking'
+import Calendar from './pages/Calendar'
 
 export default function App() {
   const { fetchUser, isAuthenticated } = useAuthStore()
@@ -45,6 +46,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Layout><Parcels /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <Layout><Calendar /></Layout>
             </ProtectedRoute>
           }
         />

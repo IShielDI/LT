@@ -1,4 +1,10 @@
+import calendar
 import logging
+from datetime import timedelta
+
+from django.db.models import Count, DateField, F
+from django.db.models.functions import Cast, TruncDate
+from django.utils import timezone
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -7,8 +13,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import IsAdminOrHubManager
+from delivery.models import AttemptStatus, DeliveryAttempt
 
-from .models import Parcel, ParcelStatus, ParcelStatusHistory, Zone
+from .models import Parcel, ParcelPriority, ParcelStatus, ParcelStatusHistory, Zone
 from .serializers import (
     ParcelDetailSerializer,
     ParcelListSerializer,
@@ -95,6 +102,159 @@ class ParcelViewSet(viewsets.ModelViewSet):
             return Parcel.objects.none()
 
         return Parcel.objects.none()
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def calendar(self, request):
+        """
+        Calendar view of parcels grouped by date.
+
+        Query params:
+          - year (required): e.g. 2026
+          - month (required): 1-12
+          - day (optional): 1-31. If provided, returns detailed parcel lists
+            for that specific day split into "scheduled" and "delivered".
+            If omitted, returns per-day counts for the whole month.
+
+        Scheduling logic (derived from priority + created_at):
+          - express  -> expected delivery on the same calendar day as created_at
+          - standard -> expected delivery on the day after created_at
+
+        Delivered: parcels with a DeliveryAttempt status=success whose
+        attempted_at falls on the requested day.
+        """
+        try:
+            year = int(request.query_params.get("year", ""))
+            month = int(request.query_params.get("month", ""))
+        except (ValueError, TypeError):
+            return Response(
+                {"error": "year and month query parameters are required integers"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not (1 <= month <= 12) or not (1900 <= year <= 2100):
+            return Response(
+                {"error": "Invalid year or month"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        day_param = request.query_params.get("day")
+        if day_param is not None:
+            try:
+                day = int(day_param)
+            except (ValueError, TypeError):
+                return Response(
+                    {"error": "day must be an integer"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            return self._calendar_day_detail(request, year, month, day)
+
+        return self._calendar_month_summary(request, year, month)
+
+    def _calendar_month_summary(self, request, year, month):
+        """Return per-day counts of scheduled and delivered parcels."""
+        parcels_qs = self.get_queryset()
+
+        # Build the set of dates in the month for stable output
+        _, days_in_month = calendar.monthrange(year, month)
+        month_dates = [
+            timezone.datetime(year, month, d).date()
+            for d in range(1, days_in_month + 1)
+        ]
+
+        # --- Scheduled (expected) deliveries per day ---
+        # Express: same day as created_at; Standard: next day after created_at
+        express_qs = parcels_qs.filter(priority=ParcelPriority.EXPRESS)
+        standard_qs = parcels_qs.filter(priority=ParcelPriority.STANDARD)
+
+        express_dates = {
+            d["d"]: d["c"]
+            for d in express_qs.annotate(
+                d=Cast("created_at", DateField())
+            ).values("d").annotate(c=Count("tracking_id"))
+        }
+        standard_dates = {
+            d["d"]: d["c"]
+            for d in standard_qs.annotate(
+                d=Cast(
+                    TruncDate(F("created_at") + timedelta(days=1)),
+                    DateField(),
+                )
+            ).values("d").annotate(c=Count("tracking_id"))
+        }
+
+        # --- Delivered per day (successful attempts) ---
+        delivered_dates = {
+            d["d"]: d["c"]
+            for d in DeliveryAttempt.objects.filter(
+                status=AttemptStatus.SUCCESS
+            ).annotate(
+                d=Cast("attempted_at", DateField())
+            ).values("d").annotate(c=Count("id"))
+        }
+
+        days = []
+        for date in month_dates:
+            scheduled = express_dates.get(date, 0) + standard_dates.get(date, 0)
+            delivered = delivered_dates.get(date, 0)
+            days.append({
+                "date": date.isoformat(),
+                "scheduled": scheduled,
+                "delivered": delivered,
+            })
+
+        return Response({
+            "year": year,
+            "month": month,
+            "days": days,
+        })
+
+    def _calendar_day_detail(self, request, year, month, day):
+        """Return detailed parcel lists for a specific day."""
+        try:
+            target_date = timezone.datetime(year, month, day).date()
+        except ValueError:
+            return Response(
+                {"error": "Invalid day for the given month/year"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        parcels_qs = self.get_queryset()
+
+        # Scheduled: express created on this day OR standard created yesterday
+        express_ids = list(
+            parcels_qs.filter(
+                priority=ParcelPriority.EXPRESS,
+                created_at__date=target_date,
+            ).values_list("tracking_id", flat=True)
+        )
+        standard_ids = list(
+            parcels_qs.filter(
+                priority=ParcelPriority.STANDARD,
+                created_at__date=target_date - timedelta(days=1),
+            ).values_list("tracking_id", flat=True)
+        )
+        scheduled_ids = set(express_ids) | set(standard_ids)
+
+        # Delivered: successful attempts on this day
+        delivered_ids = set(
+            DeliveryAttempt.objects.filter(
+                status=AttemptStatus.SUCCESS,
+                attempted_at__date=target_date,
+            ).values_list("parcel_id", flat=True)
+        )
+
+        scheduled_parcels = parcels_qs.filter(
+            tracking_id__in=scheduled_ids
+        ).order_by("priority", "-created_at")
+        delivered_parcels = parcels_qs.filter(
+            tracking_id__in=delivered_ids
+        ).order_by("-created_at")
+
+        return Response({
+            "date": target_date.isoformat(),
+            "scheduled": ParcelListSerializer(scheduled_parcels, many=True).data,
+            "delivered": ParcelListSerializer(delivered_parcels, many=True).data,
+        })
 
     @action(detail=False, methods=["get"])
     def track(self, request):

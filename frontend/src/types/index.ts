@@ -158,3 +158,21 @@ export interface PaginatedResponse<T> {
   previous: string | null
   results: T[]
 }
+
+export interface CalendarDaySummary {
+  date: string
+  scheduled: number
+  delivered: number
+}
+
+export interface CalendarMonthResponse {
+  year: number
+  month: number
+  days: CalendarDaySummary[]
+}
+
+export interface CalendarDayDetail {
+  date: string
+  scheduled: ParcelList[]
+  delivered: ParcelList[]
+}
