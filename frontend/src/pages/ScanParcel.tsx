@@ -134,19 +134,19 @@ export default function ScanParcel() {
       {!scanned ? (
         <div className={`${cardClass} p-6 space-y-6`}>
           <div>
-            <h3 className="text-lg font-semibold text-slate-950">Choose Scan Method</h3>
-            <p className="mt-1 text-sm text-slate-500">Use your device camera or upload a QR code image.</p>
+            <h3 className="text-lg font-semibold text-zinc-50">Choose Scan Method</h3>
+            <p className="mt-1 text-sm text-zinc-400">Use your device camera or upload a QR code image.</p>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
               <AlertCircle className="w-5 h-5" />
               {error}
             </div>
           )}
 
           {cameraError && (
-            <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
               <AlertCircle className="w-5 h-5" />
               {cameraError}
             </div>
@@ -156,27 +156,27 @@ export default function ScanParcel() {
             <button
               onClick={() => { setScanMode('camera'); startCamera() }}
               disabled={scanning}
-              className={`${cardClass} p-6 text-center hover:border-primary-300 hover:shadow-md disabled:opacity-50`}
+              className={`${cardClass} p-6 text-center hover:border-yellow-500/50 hover:shadow-md disabled:opacity-50`}
             >
-              <Camera className="w-12 h-12 mx-auto mb-3 text-primary-600" />
-              <h4 className="font-semibold text-slate-950 mb-1">Camera Scan</h4>
-              <p className="text-sm text-slate-500">Use device camera to scan QR code</p>
+              <Camera className="w-12 h-12 mx-auto mb-3 text-yellow-400" />
+              <h4 className="font-semibold text-zinc-50 mb-1">Camera Scan</h4>
+              <p className="text-sm text-zinc-400">Use device camera to scan QR code</p>
             </button>
 
             <button
               onClick={() => setScanMode('upload')}
               disabled={scanning}
-              className={`${cardClass} p-6 text-center hover:border-primary-300 hover:shadow-md disabled:opacity-50`}
+              className={`${cardClass} p-6 text-center hover:border-yellow-500/50 hover:shadow-md disabled:opacity-50`}
             >
-              <Upload className="w-12 h-12 mx-auto mb-3 text-primary-600" />
-              <h4 className="font-semibold text-slate-950 mb-1">Upload Image</h4>
-              <p className="text-sm text-slate-500">Upload a photo of a QR code</p>
+              <Upload className="w-12 h-12 mx-auto mb-3 text-yellow-400" />
+              <h4 className="font-semibold text-zinc-50 mb-1">Upload Image</h4>
+              <p className="text-sm text-zinc-400">Upload a photo of a QR code</p>
             </button>
           </div>
 
           {scanMode === 'camera' && !scanning && (
             <div className="flex flex-col items-center gap-4">
-              <div id="qr-reader" className="w-full max-w-md rounded-xl overflow-hidden border border-slate-200" />
+              <div id="qr-reader" className="w-full max-w-md rounded-xl overflow-hidden border border-zinc-800" />
               <button onClick={startCamera} className={buttonPrimary}>
                 <Camera className="w-4 h-4" />
                 Start Camera
@@ -206,9 +206,9 @@ export default function ScanParcel() {
 
           {scanning && (
             <div className="flex flex-col items-center gap-4 py-8">
-              <Loader2 className="w-12 h-12 animate-spin text-primary-600" />
-              <p className="text-sm text-slate-600">Scanning...</p>
-              <div id="qr-reader" className="w-full max-w-md rounded-xl overflow-hidden border border-slate-200" />
+              <Loader2 className="w-12 h-12 animate-spin text-yellow-400" />
+              <p className="text-sm text-zinc-400">Scanning...</p>
+              <div id="qr-reader" className="w-full max-w-md rounded-xl overflow-hidden border border-zinc-800" />
             </div>
           )}
         </div>
@@ -219,52 +219,52 @@ export default function ScanParcel() {
             <div className={`${cardClass} p-6 space-y-4`}>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <h3 className="text-lg font-semibold text-slate-950">Parcel Found</h3>
+                <h3 className="text-lg font-semibold text-zinc-50">Parcel Found</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-slate-500">Tracking ID</p>
-                  <p className="font-mono text-sm font-medium text-slate-800">{parcel.tracking_id}</p>
+                  <p className="text-sm text-zinc-400">Tracking ID</p>
+                  <p className="font-mono text-sm font-medium text-zinc-200">{parcel.tracking_id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Sender</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.sender_name}</p>
+                  <p className="text-sm text-zinc-400">Sender</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.sender_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Receiver</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.receiver_name}</p>
+                  <p className="text-sm text-zinc-400">Receiver</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.receiver_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Receiver Phone</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.receiver_phone}</p>
+                  <p className="text-sm text-zinc-400">Receiver Phone</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.receiver_phone}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Pincode</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.pincode}</p>
+                  <p className="text-sm text-zinc-400">Pincode</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.pincode}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Zone</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.zone_name || getLocationName(parcel.zone || 0)}</p>
+                  <p className="text-sm text-zinc-400">Zone</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.zone_name || getLocationName(parcel.zone || 0)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Priority</p>
-                  <p className="text-sm font-medium text-slate-800 capitalize">{parcel.priority}</p>
+                  <p className="text-sm text-zinc-400">Priority</p>
+                  <p className="text-sm font-medium text-zinc-200 capitalize">{parcel.priority}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Weight</p>
-                  <p className="text-sm font-medium text-slate-800">{parcel.weight} kg</p>
+                  <p className="text-sm text-zinc-400">Weight</p>
+                  <p className="text-sm font-medium text-zinc-200">{parcel.weight} kg</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Status</p>
-                  <p className="text-sm font-medium text-slate-800 capitalize">{parcel.status.replace(/_/g, ' ')}</p>
+                  <p className="text-sm text-zinc-400">Status</p>
+                  <p className="text-sm font-medium text-zinc-200 capitalize">{parcel.status.replace(/_/g, ' ')}</p>
                 </div>
                 {parcel.current_assignment && (
                   <div>
-                    <p className="text-sm text-slate-500">Assigned Rider</p>
+                    <p className="text-sm text-zinc-400">Assigned Rider</p>
                     <Link
                       to={`/riders/${parcel.current_assignment.rider_id}`}
-                      className="text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      className="text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                     >
                       {parcel.current_assignment.rider_name}
                     </Link>
@@ -273,11 +273,11 @@ export default function ScanParcel() {
               </div>
 
               {parcel.is_unassigned && (
-                <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <div>
                     <p className="font-semibold">Unassigned — Needs Attention</p>
-                    <p className="text-amber-700">No eligible rider was available when this parcel was created. It remains in 'registered' status until a rider becomes available.</p>
+                    <p className="text-amber-200">No eligible rider was available when this parcel was created. It remains in 'registered' status until a rider becomes available.</p>
                   </div>
                 </div>
               )}

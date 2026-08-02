@@ -6,13 +6,13 @@ import { ArrowLeft, Bike, MapPin, Package, TrendingUp, AlertTriangle, CheckCircl
 import { PageHeader, Skeleton, cardClass, tableHeadClass, tableRowClass } from '../components/ui'
 
 const STATUS_COLORS: Record<string, string> = {
-  registered: 'bg-gray-100 text-gray-700',
-  sorted: 'bg-blue-100 text-blue-700',
-  assigned: 'bg-indigo-100 text-indigo-700',
-  in_transit: 'bg-amber-100 text-amber-700',
-  delivered: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-700',
-  reattempt_scheduled: 'bg-purple-100 text-purple-700',
+  registered: 'bg-gray-100 text-zinc-300',
+  sorted: 'bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/30',
+  assigned: 'bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-500/30',
+  in_transit: 'bg-amber-500/20 text-amber-200 ring-1 ring-amber-500/30',
+  delivered: 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-500/30',
+  failed: 'bg-red-500/20 text-red-200 ring-1 ring-red-500/30',
+  reattempt_scheduled: 'bg-purple-500/20 text-purple-200 ring-1 ring-purple-500/30',
 }
 
 export default function RiderDetail() {
@@ -55,7 +55,7 @@ export default function RiderDetail() {
     return (
       <div className="space-y-6">
         <PageHeader title="Rider Not Found" description={error} />
-        <button onClick={() => navigate('/riders')} className="inline-flex items-center gap-2 text-sm font-semibold text-primary-700 hover:text-primary-900">
+        <button onClick={() => navigate('/riders')} className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-400 hover:text-yellow-300">
           <ArrowLeft className="w-4 h-4" /> Back to Riders
         </button>
       </div>
@@ -71,7 +71,7 @@ export default function RiderDetail() {
     <div className="space-y-6">
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-sm font-semibold text-primary-700 hover:text-primary-900"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-400 hover:text-yellow-300"
       >
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
@@ -80,7 +80,7 @@ export default function RiderDetail() {
         title={rider.user_name || rider.username}
         description={`Rider profile for ${rider.username}`}
         actions={
-          <span className={`px-3 py-1.5 text-sm rounded-full ${rider.is_available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          <span className={`px-3 py-1.5 text-sm rounded-full ${rider.is_available ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-500/30' : 'bg-red-500/20 text-red-200 ring-1 ring-red-500/30'}`}>
             {rider.is_available ? 'Available' : 'Unavailable'}
           </span>
         }
@@ -89,20 +89,20 @@ export default function RiderDetail() {
       {/* Flags */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {overCapacity && (
-          <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <div className="flex items-center gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
             <AlertTriangle className="w-5 h-5 shrink-0" />
             <div>
               <p className="font-semibold">Over Capacity</p>
-              <p className="text-red-700">Current load ({rider.current_load}) exceeds capacity ({rider.capacity}). Needs review.</p>
+              <p className="text-red-200">Current load ({rider.current_load}) exceeds capacity ({rider.capacity}). Needs review.</p>
             </div>
           </div>
         )}
         {highFailureRate && (
-          <div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <div className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
             <AlertTriangle className="w-5 h-5 shrink-0" />
             <div>
               <p className="font-semibold">High Failure Rate</p>
-              <p className="text-amber-700">Failure rate ({perf?.failure_rate}%) is notably higher than average. Worth reviewing delivery patterns.</p>
+              <p className="text-amber-200">Failure rate ({perf?.failure_rate}%) is notably higher than average. Worth reviewing delivery patterns.</p>
             </div>
           </div>
         )}
@@ -111,42 +111,42 @@ export default function RiderDetail() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Basic Info */}
         <div className={`${cardClass} p-6 space-y-5`}>
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-950">
-            <Bike className="w-5 h-5 text-primary-700" /> Rider Information
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-50">
+            <Bike className="w-5 h-5 text-yellow-400" /> Rider Information
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Zone</p>
-              <p className="mt-1 flex items-center gap-1 text-sm font-medium text-slate-800">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" /> {rider.zone_name || 'No Zone'}
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Zone</p>
+              <p className="mt-1 flex items-center gap-1 text-sm font-medium text-zinc-200">
+                <MapPin className="w-3.5 h-3.5 text-zinc-500" /> {rider.zone_name || 'No Zone'}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Vehicle</p>
-              <p className="mt-1 text-sm font-medium capitalize text-slate-800">{rider.vehicle_type.replace(/_/g, ' ')}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Vehicle</p>
+              <p className="mt-1 text-sm font-medium capitalize text-zinc-200">{rider.vehicle_type.replace(/_/g, ' ')}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Capacity</p>
-              <p className="mt-1 text-sm font-medium text-slate-800">{rider.current_load}/{rider.capacity}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Capacity</p>
+              <p className="mt-1 text-sm font-medium text-zinc-200">{rider.current_load}/{rider.capacity}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Remaining</p>
-              <p className="mt-1 text-sm font-medium text-slate-800">{rider.remaining_capacity}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Remaining</p>
+              <p className="mt-1 text-sm font-medium text-zinc-200">{rider.remaining_capacity}</p>
             </div>
           </div>
 
           <div>
             <div className="mb-1 flex justify-between text-sm">
-              <span className="text-slate-500">Load</span>
-              <span className={`font-medium ${capacityPct >= 90 ? 'text-red-600' : capacityPct >= 70 ? 'text-amber-600' : 'text-slate-800'}`}>
+              <span className="text-zinc-400">Load</span>
+              <span className={`font-medium ${capacityPct >= 90 ? 'text-red-300' : capacityPct >= 70 ? 'text-amber-300' : 'text-zinc-200'}`}>
                 {capacityPct}%
               </span>
             </div>
-            <div className="h-2 w-full rounded-full bg-slate-100">
+            <div className="h-2 w-full rounded-full bg-zinc-800">
               <div
                 className={`h-2 rounded-full transition-all ${
-                  capacityPct >= 90 ? 'bg-red-500' : capacityPct >= 70 ? 'bg-amber-500' : 'bg-gradient-to-r from-primary-700 to-teal-500'
+                  capacityPct >= 90 ? 'bg-red-500/100' : capacityPct >= 70 ? 'bg-amber-500/100' : 'bg-gradient-to-r from-yellow-600 to-yellow-400'
                 }`}
                 style={{ width: `${Math.min(capacityPct, 100)}%` }}
               />
@@ -156,59 +156,59 @@ export default function RiderDetail() {
 
         {/* Performance Stats */}
         <div className={`${cardClass} p-6`}>
-          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-950">
-            <TrendingUp className="w-5 h-5 text-primary-700" /> Performance
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-zinc-50">
+            <TrendingUp className="w-5 h-5 text-yellow-400" /> Performance
           </h3>
           {perf ? (
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <CheckCircle className="w-3.5 h-3.5" /> Total Deliveries
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.total_deliveries}</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.total_deliveries}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <TrendingUp className="w-3.5 h-3.5" /> Success Rate
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.success_rate}%</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.success_rate}%</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <XCircle className="w-3.5 h-3.5" /> Failed
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.failed}</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.failed}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <Clock className="w-3.5 h-3.5" /> Avg Delivery
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.avg_delivery_minutes}m</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.avg_delivery_minutes}m</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <Calendar className="w-3.5 h-3.5" /> Today
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.delivered_today}</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.delivered_today}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="rounded-xl bg-zinc-950 p-4">
+                <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   <Calendar className="w-3.5 h-3.5" /> This Week
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">{perf.delivered_this_week}</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-50">{perf.delivered_this_week}</p>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500">No delivery performance data available yet.</p>
+            <p className="text-sm text-zinc-400">No delivery performance data available yet.</p>
           )}
         </div>
       </div>
 
       {/* Assigned Parcels */}
       <div className={`${cardClass} overflow-hidden`}>
-        <div className="border-b border-slate-200 p-6">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-950">
-            <Package className="w-5 h-5 text-primary-700" />
+        <div className="border-b border-zinc-800 p-6">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-50">
+            <Package className="w-5 h-5 text-yellow-400" />
             Currently Assigned Parcels ({rider.assigned_parcels?.length || 0})
           </h3>
         </div>
@@ -223,10 +223,10 @@ export default function RiderDetail() {
                 <th className="px-6 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-800">
               {!rider.assigned_parcels || rider.assigned_parcels.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-slate-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-zinc-400">
                     No parcels currently assigned to this rider.
                   </td>
                 </tr>
@@ -236,22 +236,22 @@ export default function RiderDetail() {
                     <td className="px-6 py-4">
                       <Link
                         to={`/parcels/${parcel.tracking_id}`}
-                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                        className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                       >
                         {parcel.tracking_id.slice(0, 8)}...
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-800">{parcel.receiver_name}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{parcel.zone_name || '—'}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-zinc-200">{parcel.receiver_name}</td>
+                    <td className="px-6 py-4 text-sm text-zinc-400">{parcel.zone_name || '—'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        parcel.priority === 'express' ? 'bg-accent-100 text-accent-700' : 'bg-slate-100 text-slate-600'
+                        parcel.priority === 'express' ? 'bg-yellow-500/15 text-yellow-300 ring-1 ring-yellow-500/30' : 'bg-zinc-800 text-zinc-400'
                       }`}>
                         {parcel.priority}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs rounded-full ${STATUS_COLORS[parcel.status] || 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`px-2 py-1 text-xs rounded-full ${STATUS_COLORS[parcel.status] || 'bg-gray-100 text-zinc-300'}`}>
                         {parcel.status.replace(/_/g, ' ')}
                       </span>
                     </td>

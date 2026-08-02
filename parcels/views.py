@@ -66,6 +66,8 @@ class ParcelViewSet(viewsets.ModelViewSet):
 
     queryset = Parcel.objects.select_related("zone").all()
     parser_classes = [JSONParser, FormParser, MultiPartParser]
+    lookup_field = "tracking_id"
+    lookup_url_kwarg = "tracking_id"
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -314,7 +316,7 @@ class ParcelViewSet(viewsets.ModelViewSet):
             )
 
     @action(detail=True, methods=["post"])
-    def mark_sorted(self, request, pk=None):
+    def mark_sorted(self, request, tracking_id=None):
         """Mark a parcel as sorted."""
         parcel = self.get_object()
         if parcel.status != "registered":
@@ -332,7 +334,7 @@ class ParcelViewSet(viewsets.ModelViewSet):
         return Response(ParcelDetailSerializer(parcel).data)
 
     @action(detail=True, methods=["post"])
-    def generate_qr(self, request, pk=None):
+    def generate_qr(self, request, tracking_id=None):
         """Generate a QR code for a parcel."""
         parcel = self.get_object()
         generate_qr_code(parcel)

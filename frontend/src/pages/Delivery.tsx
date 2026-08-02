@@ -68,7 +68,7 @@ export default function Delivery() {
       />
 
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
@@ -80,16 +80,16 @@ export default function Delivery() {
       {showForm && (
         <form onSubmit={handleRecord} className={`${cardClass} space-y-5 p-6`}>
           <div>
-            <h3 className="text-lg font-semibold text-slate-950">Record Delivery Attempt</h3>
-            <p className="mt-1 text-sm text-slate-500">Update parcel delivery status and capture operational notes.</p>
+            <h3 className="text-lg font-semibold text-zinc-50">Record Delivery Attempt</h3>
+            <p className="mt-1 text-sm text-zinc-400">Update parcel delivery status and capture operational notes.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Parcel Tracking ID</label>
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">Parcel Tracking ID</label>
               <input name="parcel" required className={inputClass} placeholder="UUID" />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Status</label>
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">Status</label>
               <select name="status" className={inputClass}>
                 <option value="success">Delivered Successfully</option>
                 <option value="failed">Failed</option>
@@ -97,7 +97,7 @@ export default function Delivery() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Failure Reason</label>
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">Failure Reason</label>
               <select name="failure_reason" className={inputClass}>
                 <option value="">—</option>
                 <option value="customer_unavailable">Customer Unavailable</option>
@@ -108,7 +108,7 @@ export default function Delivery() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Notes</label>
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">Notes</label>
               <input name="notes" className={inputClass} />
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function Delivery() {
                 <th className="px-6 py-3">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-800">
               {attempts.length === 0 ? (
                 <tr>
                   <td colSpan={5}>
@@ -143,23 +143,23 @@ export default function Delivery() {
                     <td className="px-6 py-4">
                       <Link
                         to={`/parcels/${a.parcel_tracking_id}`}
-                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                        className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                       >
                         {a.parcel_tracking_id.slice(0, 8)}...
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-800">{a.attempt_number}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-zinc-200">{a.attempt_number}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        a.status === 'success' ? 'bg-green-100 text-green-700' :
-                        a.status === 'failed' ? 'bg-red-100 text-red-700' :
-                        'bg-purple-100 text-purple-700'
+                        a.status === 'success' ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-500/30' :
+                        a.status === 'failed' ? 'bg-red-500/20 text-red-200 ring-1 ring-red-500/30' :
+                        'bg-purple-500/20 text-purple-200 ring-1 ring-purple-500/30'
                       }`}>
                         {a.status_display}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-700">{a.failure_reason_display || '—'}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500">
+                    <td className="px-6 py-4 text-sm text-zinc-300">{a.failure_reason_display || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-zinc-400">
                       {new Date(a.attempted_at).toLocaleDateString()}
                     </td>
                   </tr>

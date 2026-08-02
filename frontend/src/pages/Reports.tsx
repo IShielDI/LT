@@ -43,13 +43,13 @@ export default function Reports() {
       />
 
       <div className={`${cardClass} p-6`}>
-        <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-950">
-          <Calendar className="w-5 h-5 text-primary-700" />
+        <h3 className="mb-4 flex items-center gap-2 font-semibold text-zinc-50">
+          <Calendar className="w-5 h-5 text-yellow-400" />
           Date Range Filter
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Start Date</label>
+            <label className="mb-1 block text-sm font-semibold text-zinc-300">Start Date</label>
             <input
               type="date"
               value={startDate}
@@ -58,7 +58,7 @@ export default function Reports() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">End Date</label>
+            <label className="mb-1 block text-sm font-semibold text-zinc-300">End Date</label>
             <input
               type="date"
               value={endDate}
@@ -74,13 +74,13 @@ export default function Reports() {
           <div key={report.id} className={`${cardClass} p-6 hover:-translate-y-1`}>
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 ring-1 ring-primary-100">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400 ring-1 ring-yellow-500/20">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-950">{report.label}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{report.desc}</p>
-                  <span className="mt-3 inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                  <h3 className="font-semibold text-zinc-50">{report.label}</h3>
+                  <p className="mt-1 text-sm text-zinc-400">{report.desc}</p>
+                  <span className="mt-3 inline-block rounded-full bg-zinc-800 px-2.5 py-1 text-xs font-semibold text-zinc-400">
                     {report.format}
                   </span>
                 </div>

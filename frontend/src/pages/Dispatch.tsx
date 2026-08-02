@@ -133,7 +133,7 @@ export default function Dispatch() {
         description="Run assignment planning and monitor rider-to-parcel allocation in real time."
         actions={
           <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
+          <div className="flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm shadow-sm">
             {wsConnected ? (
               <>
                 <Wifi className="w-4 h-4 text-green-600" />
@@ -141,8 +141,8 @@ export default function Dispatch() {
               </>
             ) : (
               <>
-                <WifiOff className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-400">Offline</span>
+                <WifiOff className="w-4 h-4 text-zinc-500" />
+                <span className="text-zinc-500">Offline</span>
               </>
             )}
           </div>
@@ -162,8 +162,8 @@ export default function Dispatch() {
       <div className={`${cardClass} p-6`}>
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-slate-950">Manual Assignment</h3>
-            <p className="mt-1 text-sm text-slate-500">Assign a specific parcel to a specific rider. Riders are filtered to match the parcel's zone and show only those with remaining capacity.</p>
+            <h3 className="font-semibold text-zinc-50">Manual Assignment</h3>
+            <p className="mt-1 text-sm text-zinc-400">Assign a specific parcel to a specific rider. Riders are filtered to match the parcel's zone and show only those with remaining capacity.</p>
           </div>
           <button onClick={openManualForm} className={buttonSecondary}>
             <UserPlus className="w-4 h-4" />
@@ -176,15 +176,15 @@ export default function Dispatch() {
       {showManualForm && (
         <div className={`${cardClass} p-6 space-y-5`}>
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-950">Manual Parcel Assignment</h3>
-            <button onClick={() => setShowManualForm(false)} className="text-slate-400 hover:text-slate-600">
+            <h3 className="text-lg font-semibold text-zinc-50">Manual Parcel Assignment</h3>
+            <button onClick={() => setShowManualForm(false)} className="text-zinc-500 hover:text-zinc-400">
               <X className="w-5 h-5" />
             </button>
           </div>
-          {manualError && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{manualError}</div>}
+          {manualError && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{manualError}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">Select Parcel</label>
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">Select Parcel</label>
               <select
                 value={selectedParcelId}
                 onChange={(e) => { setSelectedParcelId(e.target.value); setSelectedRiderId('') }}
@@ -198,16 +198,16 @@ export default function Dispatch() {
                 ))}
               </select>
               {selectedParcel && (
-                <div className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                  Zone: <strong className="text-slate-800">{selectedParcel.zone_name || 'No zone'}</strong>
-                  {' · '}Pincode: <strong className="text-slate-800">{selectedParcel.pincode}</strong>
-                  {' · '}Priority: <strong className="text-slate-800">{selectedParcel.priority}</strong>
+                <div className="mt-2 rounded-lg bg-zinc-950 px-3 py-2 text-sm text-zinc-400">
+                  Zone: <strong className="text-zinc-200">{selectedParcel.zone_name || 'No zone'}</strong>
+                  {' · '}Pincode: <strong className="text-zinc-200">{selectedParcel.pincode}</strong>
+                  {' · '}Priority: <strong className="text-zinc-200">{selectedParcel.priority}</strong>
                 </div>
               )}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">
-                Select Rider {selectedParcel && <span className="text-xs text-slate-400">(filtered by zone & capacity)</span>}
+              <label className="mb-1 block text-sm font-semibold text-zinc-300">
+                Select Rider {selectedParcel && <span className="text-xs text-zinc-500">(filtered by zone & capacity)</span>}
               </label>
               <select
                 value={selectedRiderId}
@@ -223,10 +223,10 @@ export default function Dispatch() {
                 ))}
               </select>
               {selectedParcelId && eligibleRiders.length === 0 && (
-                <p className="mt-2 text-sm text-amber-600">No eligible riders available for this parcel's zone with remaining capacity.</p>
+                <p className="mt-2 text-sm text-amber-300">No eligible riders available for this parcel's zone with remaining capacity.</p>
               )}
               {selectedParcelId && eligibleRiders.length > 0 && (
-                <p className="mt-2 text-sm text-slate-500">{eligibleRiders.length} eligible rider(s) available.</p>
+                <p className="mt-2 text-sm text-zinc-400">{eligibleRiders.length} eligible rider(s) available.</p>
               )}
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function Dispatch() {
       )}
 
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
           <AlertCircle className="w-5 h-5" />
           {error}
         </div>
@@ -268,14 +268,14 @@ export default function Dispatch() {
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <h3 className="font-semibold text-red-800">Unassigned ({result.unassigned.length})</h3>
+              <AlertCircle className="w-5 h-5 text-red-300" />
+              <h3 className="font-semibold text-red-200">Unassigned ({result.unassigned.length})</h3>
             </div>
             <div className="space-y-1 text-sm">
               {result.unassigned.map((u) => (
-                <div key={u.parcel_id} className="text-red-700">
+                <div key={u.parcel_id} className="text-red-200">
                   {u.parcel_id.slice(0, 8)}... — {u.reason}
                 </div>
               ))}
@@ -285,9 +285,9 @@ export default function Dispatch() {
       )}
 
       <div className={`${cardClass} overflow-hidden`}>
-        <div className="border-b border-slate-200 p-6">
-          <h3 className="font-semibold text-slate-950">Current Assignments</h3>
-          <p className="mt-1 text-sm text-slate-500">Assigned parcels and their current delivery workflow state.</p>
+        <div className="border-b border-zinc-800 p-6">
+          <h3 className="font-semibold text-zinc-50">Current Assignments</h3>
+          <p className="mt-1 text-sm text-zinc-400">Assigned parcels and their current delivery workflow state.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -299,7 +299,7 @@ export default function Dispatch() {
                 <th className="px-6 py-3">Assigned At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-800">
               {assignments.length === 0 ? (
                 <tr>
                   <td colSpan={4}>
@@ -312,7 +312,7 @@ export default function Dispatch() {
                     <td className="px-6 py-4">
                       <Link
                         to={`/parcels/${a.parcel_tracking_id}`}
-                        className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                        className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                       >
                         {a.parcel_tracking_id.slice(0, 8)}...
                       </Link>
@@ -320,22 +320,22 @@ export default function Dispatch() {
                     <td className="px-6 py-4">
                       <Link
                         to={`/riders/${a.rider}`}
-                        className="text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                        className="text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                       >
                         {a.rider_name}
                       </Link>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        a.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                        a.status === 'in_transit' ? 'bg-amber-100 text-amber-700' :
-                        a.status === 'failed' ? 'bg-red-100 text-red-700' :
-                        'bg-blue-100 text-blue-700'
+                        a.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-500/30' :
+                        a.status === 'in_transit' ? 'bg-amber-500/20 text-amber-200 ring-1 ring-amber-500/30' :
+                        a.status === 'failed' ? 'bg-red-500/20 text-red-200 ring-1 ring-red-500/30' :
+                        'bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/30'
                       }`}>
                         {a.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">
+                    <td className="px-6 py-4 text-sm text-zinc-400">
                       {new Date(a.assigned_at).toLocaleDateString()}
                     </td>
                   </tr>

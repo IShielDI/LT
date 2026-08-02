@@ -59,10 +59,10 @@ export default function Dashboard() {
   ).map(([zone, count]) => ({ zone, count }))
 
   const stats = [
-    { label: 'Total Parcels', value: total, icon: Package, color: 'from-primary-700 to-primary-500', trend: '+12.4%', to: '/parcels' },
-    { label: 'Delivered', value: delivered, icon: CheckCircle, color: 'from-emerald-600 to-teal-500', trend: '+8.2%', to: '/parcels?status=delivered' },
-    { label: 'Failed', value: failed, icon: XCircle, color: 'from-red-600 to-rose-500', trend: failed === 0 ? '0 issues' : 'Needs review', to: '/parcels?status=failed' },
-    { label: 'In Transit', value: inTransit, icon: Clock, color: 'from-amber-600 to-orange-500', trend: 'Live', to: '/parcels?status=in_transit' },
+    { label: 'Total Parcels', value: total, icon: Package, color: 'from-yellow-600 to-yellow-400', trend: '+12.4%', to: '/parcels' },
+    { label: 'Delivered', value: delivered, icon: CheckCircle, color: 'from-emerald-600 to-emerald-400', trend: '+8.2%', to: '/parcels?status=delivered' },
+    { label: 'Failed', value: failed, icon: XCircle, color: 'from-red-600 to-red-400', trend: failed === 0 ? '0 issues' : 'Needs review', to: '/parcels?status=failed' },
+    { label: 'In Transit', value: inTransit, icon: Clock, color: 'from-amber-600 to-amber-400', trend: 'Live', to: '/parcels?status=in_transit' },
   ]
 
   if (loading) {
@@ -96,13 +96,13 @@ export default function Dashboard() {
           <Link
             key={stat.label}
             to={stat.to}
-            className="block cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/70 transition-all hover:-translate-y-1 hover:border-primary-400 hover:shadow-xl hover:shadow-slate-200/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="block cursor-pointer overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-sm shadow-black/30 transition-all hover:-translate-y-1 hover:border-yellow-500 hover:shadow-xl hover:shadow-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                <p className="mt-2 text-4xl font-bold tracking-tight text-slate-950">{stat.value}</p>
-                <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                <p className="text-sm font-medium text-zinc-400">{stat.label}</p>
+                <p className="mt-2 text-4xl font-bold tracking-tight text-zinc-50">{stat.value}</p>
+                <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-200">
                   <ArrowUpRight className="h-3.5 w-3.5" />
                   {stat.trend}
                 </div>
@@ -117,14 +117,14 @@ export default function Dashboard() {
 
       {/* Unassigned parcels needing attention */}
       {unassigned.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
-            <h3 className="text-lg font-semibold text-amber-900">
+            <AlertTriangle className="w-5 h-5 text-amber-300" />
+            <h3 className="text-lg font-semibold text-amber-100">
               Unassigned Parcels ({unassigned.length})
             </h3>
           </div>
-          <p className="mb-4 text-sm text-amber-700">
+          <p className="mb-4 text-sm text-amber-200">
             These parcels could not be auto-assigned because no eligible rider was available in their zone. They need attention.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -132,17 +132,17 @@ export default function Dashboard() {
               <Link
                 key={parcel.tracking_id}
                 to={`/parcels/${parcel.tracking_id}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-medium text-amber-800 shadow-sm transition-all hover:border-amber-400 hover:bg-amber-100"
+                className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-zinc-900 px-3 py-2 text-sm font-medium text-amber-200 shadow-sm transition-all hover:border-amber-400/70 hover:bg-amber-500/20"
               >
                 <span className="font-mono text-xs">{parcel.tracking_id.slice(0, 8)}...</span>
-                <span className="text-amber-600">→</span>
+                <span className="text-amber-300">→</span>
                 <span>{parcel.receiver_name}</span>
               </Link>
             ))}
             {unassigned.length > 8 && (
               <Link
                 to="/parcels"
-                className="inline-flex items-center rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-800 shadow-sm transition-all hover:bg-amber-100"
+                className="inline-flex items-center rounded-xl border border-amber-500/40 bg-zinc-900 px-3 py-2 text-sm font-semibold text-amber-200 shadow-sm transition-all hover:bg-amber-500/20"
               >
                 View all {unassigned.length} unassigned →
               </Link>
@@ -154,8 +154,8 @@ export default function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className={`${cardClass} p-6`}>
-          <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-slate-950"><Activity className="h-5 w-5 text-primary-700" /> Parcels by Status</h3>
-          <p className="mb-4 text-sm text-slate-500">Distribution across current fulfillment stages.</p>
+          <h3 className="mb-1 flex items-center gap-2 text-lg font-semibold text-zinc-50"><Activity className="h-5 w-5 text-yellow-400" /> Parcels by Status</h3>
+          <p className="mb-4 text-sm text-zinc-400">Distribution across current fulfillment stages.</p>
           {statusData.length === 0 ? (
             <EmptyState icon={Package} title="No parcel status yet" description="Register parcels to see live status distribution here." />
           ) : (
@@ -172,8 +172,8 @@ export default function Dashboard() {
         </div>
 
         <div className={`${cardClass} p-6`}>
-          <h3 className="mb-1 text-lg font-semibold text-slate-950">Zone-wise Parcel Count</h3>
-          <p className="mb-4 text-sm text-slate-500">Workload breakdown by operating zone.</p>
+          <h3 className="mb-1 text-lg font-semibold text-zinc-50">Zone-wise Parcel Count</h3>
+          <p className="mb-4 text-sm text-zinc-400">Workload breakdown by operating zone.</p>
           {zoneData.length === 0 ? (
             <EmptyState icon={Package} title="No zone activity yet" description="Zone workloads will appear once parcels are registered and assigned." />
           ) : (
@@ -192,9 +192,9 @@ export default function Dashboard() {
 
       {/* Recent parcels */}
       <div className={`${cardClass} overflow-hidden`}>
-        <div className="border-b border-slate-200 p-6">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-950">
-            <TrendingUp className="h-5 w-5 text-primary-700" />
+        <div className="border-b border-zinc-800 p-6">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-50">
+            <TrendingUp className="h-5 w-5 text-yellow-400" />
             Recent Parcels
           </h3>
         </div>
@@ -211,24 +211,24 @@ export default function Dashboard() {
                 <th className="px-6 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-800">
               {parcels.slice(0, 10).map((parcel) => (
                 <tr key={parcel.tracking_id} className={tableRowClass}>
                   <td className="px-6 py-4">
                     <Link
                       to={`/parcels/${parcel.tracking_id}`}
-                      className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                     >
                       {parcel.tracking_id.slice(0, 8)}...
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">{parcel.receiver_name}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{parcel.zone_name || '—'}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-zinc-200">{parcel.receiver_name}</td>
+                  <td className="px-6 py-4 text-sm text-zinc-400">{parcel.zone_name || '—'}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       parcel.priority === 'express'
-                        ? 'bg-accent-100 text-accent-700'
-                        : 'bg-slate-100 text-slate-600'
+                        ? 'bg-yellow-500/15 text-yellow-300 ring-1 ring-yellow-500/30'
+                        : 'bg-zinc-800 text-zinc-400'
                     }`}>
                       {parcel.priority}
                     </span>

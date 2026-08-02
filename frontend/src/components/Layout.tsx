@@ -34,21 +34,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-white/10 bg-slate-950 text-white shadow-2xl shadow-slate-950/20 transition-transform duration-300 lg:translate-x-0`}
+        } fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-white/10 bg-zinc-950 text-white shadow-2xl shadow-black/40 transition-transform duration-300 lg:translate-x-0`}
       >
         <div className="border-b border-white/10 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-400 to-teal-300 shadow-lg shadow-primary-500/20">
-              <Warehouse className="h-6 w-6 text-slate-950" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-300 shadow-lg shadow-yellow-500/20">
+              <Warehouse className="h-6 w-6 text-zinc-950" />
             </div>
             <div>
               <h1 className="text-lg font-bold tracking-tight">Delivery Hub</h1>
-              <p className="text-xs text-slate-400">Logistics Command Center</p>
+              <p className="text-xs text-zinc-500">Logistics Command Center</p>
             </div>
           </div>
         </div>
@@ -61,8 +61,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className={({ isActive }) =>
                 `group flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
                   isActive
-                    ? 'bg-white text-slate-950 shadow-lg shadow-black/20'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-yellow-500 text-zinc-950 shadow-lg shadow-yellow-900/20'
+                    : 'text-zinc-300 hover:bg-yellow-400/10 hover:text-white'
                 }`
               }
             >
@@ -75,9 +75,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <div className="mb-3 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
+          <div className="mb-3 rounded-2xl bg-zinc-900/70 p-3 ring-1 ring-white/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-400 text-slate-950 ring-2 ring-white/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500 text-zinc-950 ring-2 ring-yellow-500/20">
                 <span className="text-sm font-bold">
                   {user?.first_name?.[0] || user?.username?.[0] || 'U'}
                 </span>
@@ -86,7 +86,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <p className="truncate text-sm font-semibold text-white">
                   {user?.first_name} {user?.last_name}
                 </p>
-                <p className="text-xs capitalize text-slate-400">
+                <p className="text-xs capitalize text-zinc-500">
                   {user?.role?.replace('_', ' ')}
                 </p>
               </div>
@@ -105,39 +105,39 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-slate-950/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-20 bg-zinc-950/70 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main content */}
       <div className="min-h-screen lg:pl-72">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/80 bg-white/85 px-4 py-3 shadow-sm shadow-slate-200/50 backdrop-blur-xl lg:px-8">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/85 px-4 py-3 shadow-sm shadow-black/30 backdrop-blur-xl lg:px-8">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+            className="rounded-xl p-2 text-zinc-400 hover:bg-zinc-800 lg:hidden"
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           <div className="hidden lg:block">
-            <h2 className="text-sm font-semibold text-slate-950">Delivery Hub Management</h2>
-            <p className="text-xs text-slate-500">Monitor parcels, riders, dispatch and delivery operations.</p>
+            <h2 className="text-sm font-semibold text-zinc-50">Delivery Hub Management</h2>
+            <p className="text-xs text-zinc-400">Monitor parcels, riders, dispatch and delivery operations.</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
+                className="relative rounded-xl border border-zinc-800 bg-zinc-900 p-2.5 text-zinc-400 shadow-sm hover:border-yellow-500/40 hover:bg-yellow-400/10 hover:text-yellow-300"
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent-500 ring-2 ring-white" />
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-yellow-500 ring-2 ring-zinc-900" />
               </button>
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg z-50">
-                  <div className="p-4 border-b border-slate-200">
-                    <h3 className="font-semibold text-slate-950">Notifications</h3>
+                <div className="absolute right-0 mt-2 w-80 rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg z-50">
+                  <div className="p-4 border-b border-zinc-800">
+                    <h3 className="font-semibold text-zinc-50">Notifications</h3>
                   </div>
-                  <div className="p-4 text-sm text-slate-600">
+                  <div className="p-4 text-sm text-zinc-400">
                     <p className="mb-2">• Parcel #PKG-1234 assigned to rider John</p>
                     <p className="mb-2">• Delivery completed for PKG-1233</p>
                     <p>• 3 parcels pending assignment</p>
@@ -145,9 +145,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
-            <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm sm:flex">
+            <div className="hidden items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 shadow-sm sm:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-xs font-semibold capitalize text-slate-600">{user?.role?.replace('_', ' ')}</span>
+              <span className="text-xs font-semibold capitalize text-zinc-400">{user?.role?.replace('_', ' ')}</span>
             </div>
           </div>
         </header>

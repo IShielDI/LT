@@ -32,9 +32,9 @@ const STATUS_COLORS: Record<string, string> = {
   registered: 'text-gray-600 bg-gray-100',
   sorted: 'text-blue-600 bg-blue-100',
   assigned: 'text-indigo-600 bg-indigo-100',
-  in_transit: 'text-amber-600 bg-amber-100',
+  in_transit: 'text-amber-300 bg-amber-100',
   delivered: 'text-green-600 bg-green-100',
-  failed: 'text-red-600 bg-red-100',
+  failed: 'text-red-300 bg-red-100',
   reattempt_scheduled: 'text-purple-600 bg-purple-100',
 }
 
@@ -92,18 +92,18 @@ export default function Tracking() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#e0f2fe,transparent_35%),linear-gradient(135deg,#f8fafc,#eef2ff)] px-4 py-12">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-800 to-teal-500 shadow-xl shadow-primary-900/20">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-yellow-600 to-yellow-400 shadow-xl shadow-yellow-900/20">
             <Package className="w-8 h-8 text-white" />
           </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-700">Delivery Hub</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Track Your Parcel</h1>
-          <p className="mt-3 text-slate-500">Enter your tracking ID or upload a QR code to see the latest status.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-400">Delivery Hub</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">Track Your Parcel</h1>
+          <p className="mt-3 text-zinc-400">Enter your tracking ID or upload a QR code to see the latest status.</p>
         </div>
 
         <form onSubmit={handleSearch} className={`${cardClass} mb-6 p-3 sm:p-4`}>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
               <input
                 type="text"
                 value={trackingId}
@@ -133,7 +133,7 @@ export default function Tracking() {
                 className={`${buttonSecondary} cursor-pointer`}
               >
                 {scanning ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-slate-700" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-yellow-500" />
                 ) : (
                   <Upload className="w-5 h-5" />
                 )}
@@ -144,9 +144,9 @@ export default function Tracking() {
         </form>
 
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center shadow-sm">
             <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-            <p className="text-red-700">{error}</p>
+            <p className="text-red-200">{error}</p>
           </div>
         )}
 
@@ -167,11 +167,11 @@ export default function Tracking() {
 
         {result && !loading && (
           <div className={`${cardClass} overflow-hidden`}>
-            <div className="border-b border-slate-200 bg-white p-6">
+            <div className="border-b border-zinc-800 bg-zinc-900 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Tracking ID</p>
-                  <p className="font-mono text-sm text-slate-700">{result.tracking_id}</p>
+                  <p className="text-sm text-zinc-400">Tracking ID</p>
+                  <p className="font-mono text-sm text-zinc-300">{result.tracking_id}</p>
                 </div>
                 <div className={`flex items-center gap-2 rounded-xl px-4 py-2 ${STATUS_COLORS[result.status]}`}>
                   <StatusIcon className="w-5 h-5" />
@@ -182,32 +182,32 @@ export default function Tracking() {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-slate-500">Sender</p>
+                  <p className="text-sm text-zinc-400">Sender</p>
                   <p className="font-medium">{result.sender_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Receiver</p>
+                  <p className="text-sm text-zinc-400">Receiver</p>
                   <p className="font-medium">{result.receiver_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Pincode</p>
+                  <p className="text-sm text-zinc-400">Pincode</p>
                   <p className="font-medium">{result.pincode}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Zone</p>
+                  <p className="text-sm text-zinc-400">Zone</p>
                   <p className="font-medium">{result.zone_name || 'Unzoned'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Priority</p>
+                  <p className="text-sm text-zinc-400">Priority</p>
                   <p className="font-medium">{result.priority_display}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Weight</p>
+                  <p className="text-sm text-zinc-400">Weight</p>
                   <p className="font-medium">{result.weight} kg</p>
                 </div>
               </div>
               <div className="border-t pt-4">
-                <div className="flex flex-col justify-between gap-2 text-sm text-slate-500 sm:flex-row">
+                <div className="flex flex-col justify-between gap-2 text-sm text-zinc-400 sm:flex-row">
                   <div>
                     <p>Created: {new Date(result.created_at).toLocaleString()}</p>
                   </div>

@@ -12,13 +12,13 @@ const MONTH_NAMES = [
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const STATUS_COLORS: Record<string, string> = {
-  registered: 'bg-gray-100 text-gray-700',
-  sorted: 'bg-blue-100 text-blue-700',
-  assigned: 'bg-indigo-100 text-indigo-700',
-  in_transit: 'bg-amber-100 text-amber-700',
-  delivered: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-700',
-  reattempt_scheduled: 'bg-purple-100 text-purple-700',
+  registered: 'bg-gray-100 text-zinc-300',
+  sorted: 'bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/30',
+  assigned: 'bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-500/30',
+  in_transit: 'bg-amber-500/20 text-amber-200 ring-1 ring-amber-500/30',
+  delivered: 'bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-500/30',
+  failed: 'bg-red-500/20 text-red-200 ring-1 ring-red-500/30',
+  reattempt_scheduled: 'bg-purple-500/20 text-purple-200 ring-1 ring-purple-500/30',
 }
 
 function pad(n: number) {
@@ -176,29 +176,29 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={goPrevMonth}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 shadow-sm transition hover:border-yellow-500/40 hover:bg-yellow-400/10 hover:text-yellow-300"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={goNextMonth}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 shadow-sm transition hover:border-yellow-500/40 hover:bg-yellow-400/10 hover:text-yellow-300"
             aria-label="Next month"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-          <h2 className="ml-2 text-xl font-bold tracking-tight text-slate-950">
+          <h2 className="ml-2 text-xl font-bold tracking-tight text-zinc-50">
             {MONTH_NAMES[viewMonth]} {viewYear}
           </h2>
         </div>
 
         <div className="flex items-center gap-4 text-sm">
-          <span className="inline-flex items-center gap-1.5 font-semibold text-amber-700">
+          <span className="inline-flex items-center gap-1.5 font-semibold text-amber-200">
             <Clock className="h-4 w-4" />
             Scheduled: {monthLoading ? '…' : totals.scheduled}
           </span>
-          <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-200">
             <CheckCircle2 className="h-4 w-4" />
             Delivered: {monthLoading ? '…' : totals.delivered}
           </span>
@@ -209,7 +209,7 @@ export default function CalendarPage() {
         {/* Calendar grid */}
         <div className={`${cardClass} xl:col-span-2`}>
           {/* Weekday header */}
-          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <div className="grid grid-cols-7 border-b border-zinc-800 bg-zinc-950 text-center text-xs font-semibold uppercase tracking-wider text-zinc-400">
             {WEEKDAY_LABELS.map((w) => (
               <div key={w} className="px-2 py-3">
                 {w}
@@ -221,7 +221,7 @@ export default function CalendarPage() {
           <div className="grid grid-cols-7">
             {grid.map((cell, idx) => {
               if (cell.day == null) {
-                return <div key={idx} className="min-h-[112px] border-b border-r border-slate-100 bg-slate-50/40" />
+                return <div key={idx} className="min-h-[112px] border-b border-r border-zinc-800 bg-zinc-950/40" />
               }
               const counts = dayMap.get(cell.iso!) ?? { scheduled: 0, delivered: 0 }
               const hasActivity = counts.scheduled > 0 || counts.delivered > 0
@@ -230,37 +230,37 @@ export default function CalendarPage() {
                 <button
                   key={idx}
                   onClick={() => setSelectedDay(cell.day)}
-                  className={`min-h-[112px] border-b border-r border-slate-100 p-2 text-left align-top transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${
+                  className={`min-h-[112px] border-b border-r border-zinc-800 p-2 text-left align-top transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500 ${
                     selected
-                      ? 'bg-primary-50 ring-2 ring-inset ring-primary-500'
-                      : 'hover:bg-primary-50/40'
+                      ? 'bg-yellow-400/10 ring-2 ring-inset ring-yellow-500'
+                      : 'hover:bg-yellow-400/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span
                       className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${
                         isToday(cell.day)
-                          ? 'bg-primary-800 text-white'
-                          : 'text-slate-700'
+                          ? 'bg-yellow-500 text-white'
+                          : 'text-zinc-300'
                       }`}
                     >
                       {cell.day}
                     </span>
                     {isToday(cell.day) && (
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-primary-700">Today</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-yellow-400">Today</span>
                     )}
                   </div>
 
                   {hasActivity && (
                     <div className="mt-2 space-y-1">
                       {counts.scheduled > 0 && (
-                        <div className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                        <div className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-200">
                           <Clock className="h-3 w-3" />
                           {counts.scheduled}
                         </div>
                       )}
                       {counts.delivered > 0 && (
-                        <div className="ml-1 inline-flex items-center gap-1 rounded-md bg-emerald-100 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                        <div className="ml-1 inline-flex items-center gap-1 rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-200">
                           <CheckCircle2 className="h-3 w-3" />
                           {counts.delivered}
                         </div>
@@ -275,9 +275,9 @@ export default function CalendarPage() {
 
         {/* Day detail panel */}
         <div className={`${cardClass} overflow-hidden`}>
-          <div className="border-b border-slate-200 p-5">
+          <div className="border-b border-zinc-800 p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-950">
+              <h3 className="text-lg font-semibold text-zinc-50">
                 {selectedDay != null
                   ? new Date(viewYear, viewMonth, selectedDay).toLocaleDateString(undefined, {
                       weekday: 'long',
@@ -289,14 +289,14 @@ export default function CalendarPage() {
               {selectedDay != null && (
                 <button
                   onClick={() => setSelectedDay(null)}
-                  className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                  className="rounded-lg p-1 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-400"
                   aria-label="Clear selected day"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-zinc-400">
               Scheduled = expected by priority (Express: same day, Standard: next day). Delivered = successful attempts on this date.
             </p>
           </div>
@@ -315,16 +315,16 @@ export default function CalendarPage() {
               <Skeleton className="h-24 w-full" />
             </div>
           ) : dayDetail ? (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-zinc-800">
               <DaySection
                 title="Scheduled / Expected"
-                icon={<Clock className="h-4 w-4 text-amber-600" />}
+                icon={<Clock className="h-4 w-4 text-amber-300" />}
                 parcels={dayDetail.scheduled}
                 emptyMessage="No parcels scheduled for this day."
               />
               <DaySection
                 title="Delivered"
-                icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+                icon={<CheckCircle2 className="h-4 w-4 text-emerald-300" />}
                 parcels={dayDetail.delivered}
                 emptyMessage="No parcels delivered on this day."
               />
@@ -357,14 +357,14 @@ function DaySection({
     <div className="p-5">
       <div className="mb-3 flex items-center gap-2">
         {icon}
-        <h4 className="text-sm font-bold uppercase tracking-wider text-slate-700">{title}</h4>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+        <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-300">{title}</h4>
+        <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-semibold text-zinc-400">
           {parcels.length}
         </span>
       </div>
 
       {parcels.length === 0 ? (
-        <p className="text-sm text-slate-400">{emptyMessage}</p>
+        <p className="text-sm text-zinc-500">{emptyMessage}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -376,29 +376,29 @@ function DaySection({
                 <th className="px-3 py-2">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-800">
               {parcels.map((parcel) => (
                 <tr key={parcel.tracking_id} className={tableRowClass}>
                   <td className="px-3 py-3">
                     <Link
                       to={`/parcels/${parcel.tracking_id}`}
-                      className="font-mono text-sm font-medium text-primary-700 hover:text-primary-900 hover:underline"
+                      className="font-mono text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:underline"
                     >
                       {parcel.tracking_id.slice(0, 8)}...
                     </Link>
                   </td>
-                  <td className="px-3 py-3 text-sm font-medium text-slate-800">{parcel.receiver_name}</td>
+                  <td className="px-3 py-3 text-sm font-medium text-zinc-200">{parcel.receiver_name}</td>
                   <td className="px-3 py-3">
                     <span
                       className={`px-2 py-0.5 text-xs rounded-full ${
-                        parcel.priority === 'express' ? 'bg-accent-100 text-accent-700' : 'bg-slate-100 text-slate-600'
+                        parcel.priority === 'express' ? 'bg-yellow-500/15 text-yellow-300 ring-1 ring-yellow-500/30' : 'bg-zinc-800 text-zinc-400'
                       }`}
                     >
                       {parcel.priority}
                     </span>
                   </td>
                   <td className="px-3 py-3">
-                    <span className={`px-2 py-0.5 text-xs rounded-full ${STATUS_COLORS[parcel.status] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${STATUS_COLORS[parcel.status] || 'bg-gray-100 text-zinc-300'}`}>
                       {parcel.status.replace(/_/g, ' ')}
                     </span>
                   </td>

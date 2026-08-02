@@ -53,36 +53,36 @@ export default function Riders() {
               className={`${cardClass} p-6 hover:-translate-y-1`}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-700 to-teal-500 shadow-lg shadow-primary-900/20">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-600 to-yellow-400 shadow-lg shadow-yellow-900/20">
                   <Bike className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-950">{rider.user_name || rider.username}</h3>
-                  <p className="text-sm text-slate-500">{rider.zone_name || 'No Zone'}</p>
+                  <h3 className="font-semibold text-zinc-50">{rider.user_name || rider.username}</h3>
+                  <p className="text-sm text-zinc-400">{rider.zone_name || 'No Zone'}</p>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Capacity</span>
+                  <span className="text-zinc-400">Capacity</span>
                   <span className="font-medium">{rider.current_load}/{rider.capacity}</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100">
+                <div className="h-2 w-full rounded-full bg-zinc-800">
                   <div
-                    className="h-2 rounded-full bg-gradient-to-r from-primary-700 to-teal-500 transition-all"
+                    className="h-2 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 transition-all"
                     style={{ width: `${(rider.current_load / rider.capacity) * 100}%` }}
                   />
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Remaining</span>
+                  <span className="text-zinc-400">Remaining</span>
                   <span className="font-medium">{rider.remaining_capacity}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Vehicle</span>
+                  <span className="text-zinc-400">Vehicle</span>
                   <span className="font-medium capitalize">{rider.vehicle_type.replace(/_/g, ' ')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Available</span>
-                  <span className={`font-medium ${rider.is_available ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className="text-zinc-400">Available</span>
+                  <span className={`font-medium ${rider.is_available ? 'text-green-600' : 'text-red-300'}`}>
                     {rider.is_available ? 'Yes' : 'No'}
                   </span>
                 </div>
