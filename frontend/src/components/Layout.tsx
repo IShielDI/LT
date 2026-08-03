@@ -75,7 +75,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <div className="mb-3 rounded-2xl bg-zinc-900/70 p-3 ring-1 ring-white/10">
+          <button
+            onClick={() => navigate('/profile')}
+            className="mb-3 w-full rounded-2xl bg-zinc-900/70 p-3 ring-1 ring-white/10 text-left transition-all hover:bg-zinc-800/70 hover:ring-yellow-500/30"
+          >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500 text-zinc-950 ring-2 ring-yellow-500/20">
                 <span className="text-sm font-bold">
@@ -91,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
             </div>
-          </div>
+          </button>
           <button
             onClick={handleLogout}
             className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-200 transition-all hover:bg-red-500/10 hover:text-red-100"

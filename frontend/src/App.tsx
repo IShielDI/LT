@@ -9,6 +9,7 @@ import Parcels from './pages/Parcels'
 import ParcelDetail from './pages/ParcelDetail'
 import Riders from './pages/Riders'
 import RiderDetail from './pages/RiderDetail'
+import Profile from './pages/Profile'
 import Dispatch from './pages/Dispatch'
 import ScanParcel from './pages/ScanParcel'
 import Delivery from './pages/Delivery'
@@ -78,6 +79,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={['admin', 'hub_manager']}>
               <Layout><RiderDetail /></Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Layout><Profile /></Layout>
             </ProtectedRoute>
           }
         />
